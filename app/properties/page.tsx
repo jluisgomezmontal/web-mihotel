@@ -1,13 +1,16 @@
 "use client"
 
 import * as React from "react"
-import { Plus, Search, Building2, MapPin, Bed, Hotel } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Plus, Search, Building2, MapPin, Bed, Hotel, Edit, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MainLayout } from "@/components/layout/main-layout"
 import { AuthService } from "@/lib/auth"
+import { PropertyFormDialog } from "@/components/forms/property-form-dialog"
+import { useSweetAlert } from "@/lib/use-sweet-alert"
 
 interface Property {
   _id: string
@@ -26,7 +29,17 @@ interface Property {
   isActive: boolean
 }
 
-function PropertyCard({ property }: { property: Property }) {
+function PropertyCard({ 
+  property, 
+  onEdit, 
+  onDelete 
+}: { 
+  property: Property
+  onEdit: (property: Property) => void
+  onDelete: (property: Property) => void
+}) {
+  const router = useRouter()
+  
   const getTypeLabel = (type: string) => {
     switch (type) {
       case 'hotel': return 'Hotel'
@@ -36,9 +49,11 @@ function PropertyCard({ property }: { property: Property }) {
     }
   }
 
-  const availableRooms = property.totalRooms - (property.occupiedRooms || 0)
-  const occupancyRate = property.totalRooms > 0 
-    ? Math.round(((property.occupiedRooms || 0) / property.totalRooms) * 100) 
+  const totalRooms = property.totalRooms || 0
+  const occupiedRooms = property.occupiedRooms || 0
+  const availableRooms = totalRooms - occupiedRooms
+  const occupancyRate = totalRooms > 0 
+    ? Math.round((occupiedRooms / totalRooms) * 100) 
     : 0
 
   const getOccupancyColor = (rate: number) => {
@@ -78,7 +93,7 @@ function PropertyCard({ property }: { property: Property }) {
               <span>Habitaciones</span>
             </div>
             <p className="font-medium">
-              {availableRooms}/{property.totalRooms}
+              {availableRooms}/{totalRooms}
               <span className="text-muted-foreground ml-1">disponibles</span>
             </p>
           </div>
@@ -101,11 +116,34 @@ function PropertyCard({ property }: { property: Property }) {
         )}
 
         <div className="flex gap-2 pt-2">
-          <Button variant="outline" size="sm" className="flex-1">
-            Ver Detalles
+          <Button 
+            variant="outline"
+            size="sm" 
+            className="flex-1"
+            onClick={(e) => {
+              e.stopPropagation()
+              onEdit(property)
+            }}
+          >
+            <Edit className="h-4 w-4 mr-1" />
+            Editar
           </Button>
-          <Button size="sm" className="flex-1">
+          <Button 
+            size="sm" 
+            className="flex-1"
+            onClick={() => router.push(`/properties/${property._id}`)}
+          >
             Gestionar
+          </Button>
+          <Button 
+            variant="destructive"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation()
+              onDelete(property)
+            }}
+          >
+            <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       </CardContent>
@@ -121,68 +159,115 @@ export default function PropertiesPage() {
   const [userData, setUserData] = React.useState<any>(null)
   const [tenantData, setTenantData] = React.useState<any>(null)
   const [isMounted, setIsMounted] = React.useState(false)
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+  const [editingProperty, setEditingProperty] = React.useState<Property | undefined>(undefined)
+  const { confirmDelete, showError, showLoading, close } = useSweetAlert()
 
   React.useEffect(() => {
     setIsMounted(true)
   }, [])
 
+  const loadProperties = React.useCallback(async () => {
+    try {
+      setIsLoading(true)
+      
+      // Get user and tenant data
+      const user = AuthService.getUser()
+      const tenant = AuthService.getTenant()
+      const token = AuthService.getToken()
+      
+      setUserData(user)
+      setTenantData(tenant)
+      
+      if (!token) {
+        window.location.href = '/auth/login'
+        return
+      }
+
+      const response = await fetch('http://localhost:3000/api/properties', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        // La API devuelve { success: true, data: { properties: [...], pagination: {...} } }
+        const propertiesArray = data.data?.properties || data.properties || []
+        setProperties(Array.isArray(propertiesArray) ? propertiesArray : [])
+      } else if (response.status === 401) {
+        AuthService.clearAuth()
+        window.location.href = '/auth/login'
+      } else {
+        setError('Error al cargar las propiedades')
+      }
+    } catch (err) {
+      console.error('Error loading properties:', err)
+      setError('Error de conexión con el servidor')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
   React.useEffect(() => {
     if (!isMounted) return
-
-    const loadProperties = async () => {
-      try {
-        setIsLoading(true)
-        
-        // Get user and tenant data
-        const user = AuthService.getUser()
-        const tenant = AuthService.getTenant()
-        const token = AuthService.getToken()
-        
-        setUserData(user)
-        setTenantData(tenant)
-        
-        if (!token) {
-          window.location.href = '/auth/login'
-          return
-        }
-
-        const response = await fetch('http://localhost:3000/api/properties', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          }
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          setProperties(data.data || [])
-        } else if (response.status === 401) {
-          AuthService.clearAuth()
-          window.location.href = '/auth/login'
-        } else {
-          setError('Error al cargar las propiedades')
-        }
-      } catch (err) {
-        console.error('Error loading properties:', err)
-        setError('Error de conexión con el servidor')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
     loadProperties()
-  }, [isMounted])
+  }, [isMounted, loadProperties])
 
-  const filteredProperties = properties.filter((property: Property) =>
-    property.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    property.address?.city?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const handleDeleteProperty = async (property: Property) => {
+    const confirmed = await confirmDelete({
+      title: '¿Eliminar propiedad?',
+      text: `Se eliminará permanentemente la propiedad "${property.name}" y todas sus habitaciones asociadas. Esta acción no se puede deshacer.`,
+    })
 
+    if (!confirmed) return
+
+    showLoading('Eliminando propiedad...')
+    
+    try {
+      const token = AuthService.getToken()
+      if (!token) {
+        close()
+        window.location.href = '/auth/login'
+        return
+      }
+
+      const response = await fetch(`http://localhost:3000/api/properties/${property._id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      })
+
+      close()
+
+      if (response.ok) {
+        loadProperties()
+      } else {
+        const data = await response.json()
+        await showError('Error al eliminar', data.message || 'No se pudo eliminar la propiedad')
+      }
+    } catch (err) {
+      close()
+      console.error('Error deleting property:', err)
+      await showError('Error de conexión', 'No se pudo conectar con el servidor')
+    }
+  }
+
+  const filteredProperties = Array.isArray(properties) 
+    ? properties.filter((property: Property) =>
+        property.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        property.address?.city?.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : []
+
+  const propertiesArray = Array.isArray(properties) ? properties : []
   const stats = {
-    total: properties.length,
-    totalRooms: properties.reduce((sum, p) => sum + (p.totalRooms || 0), 0),
-    occupiedRooms: properties.reduce((sum, p) => sum + (p.occupiedRooms || 0), 0),
-    totalRevenue: properties.reduce((sum, p) => sum + (p.monthlyRevenue || 0), 0)
+    total: propertiesArray.length,
+    totalRooms: propertiesArray.reduce((sum, p) => sum + (p.totalRooms || 0), 0),
+    occupiedRooms: propertiesArray.reduce((sum, p) => sum + (p.occupiedRooms || 0), 0),
+    totalRevenue: propertiesArray.reduce((sum, p) => sum + (p.monthlyRevenue || 0), 0)
   }
 
   if (isLoading) {
@@ -215,7 +300,10 @@ export default function PropertiesPage() {
             </p>
           </div>
           
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => {
+            setEditingProperty(undefined)
+            setIsDialogOpen(true)
+          }}>
             <Plus className="h-4 w-4" />
             Nueva Propiedad
           </Button>
@@ -289,7 +377,15 @@ export default function PropertiesPage() {
         {filteredProperties.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredProperties.map((property) => (
-              <PropertyCard key={property._id} property={property} />
+              <PropertyCard 
+                key={property._id} 
+                property={property}
+                onEdit={(prop) => {
+                  setEditingProperty(prop)
+                  setIsDialogOpen(true)
+                }}
+                onDelete={handleDeleteProperty}
+              />
             ))}
           </div>
         ) : (
@@ -306,7 +402,7 @@ export default function PropertiesPage() {
                     : 'Comienza agregando tu primera propiedad para gestionar reservas y habitaciones'}
                 </p>
               </div>
-              <Button onClick={() => console.log('Crear propiedad')}>
+              <Button onClick={() => setIsDialogOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
                 Crear Primera Propiedad
               </Button>
@@ -314,6 +410,16 @@ export default function PropertiesPage() {
           </Card>
         )}
       </div>
+
+      <PropertyFormDialog
+        open={isDialogOpen}
+        onOpenChange={(open) => {
+          setIsDialogOpen(open)
+          if (!open) setEditingProperty(undefined)
+        }}
+        onSuccess={loadProperties}
+        property={editingProperty as any}
+      />
     </MainLayout>
   )
 }

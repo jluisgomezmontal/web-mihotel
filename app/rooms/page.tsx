@@ -1,0 +1,423 @@
+"use client"
+
+import * as React from "react"
+import { useRouter } from "next/navigation"
+import { Plus, Search, Bed, Building2, Users, DollarSign, Filter } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { MainLayout } from "@/components/layout/main-layout"
+import { AuthService } from "@/lib/auth"
+import { RoomFormDialog } from "@/components/forms/room-form-dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
+interface Room {
+  _id: string
+  propertyId: {
+    _id: string
+    name: string
+    address: {
+      city: string
+    }
+  }
+  nameOrNumber: string
+  type: string
+  capacity: {
+    adults: number
+    children?: number
+  }
+  pricing: {
+    basePrice: number
+    currency: string
+  }
+  status: 'available' | 'occupied' | 'maintenance' | 'cleaning' | 'reserved'
+  amenities?: string[]
+  description?: string
+  isActive: boolean
+}
+
+function RoomCard({ room }: { room: Room }) {
+  const router = useRouter()
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'available': return 'bg-green-500/10 text-green-600 border-green-500/20'
+      case 'occupied': return 'bg-red-500/10 text-red-600 border-red-500/20'
+      case 'reserved': return 'bg-blue-500/10 text-blue-600 border-blue-500/20'
+      case 'maintenance': return 'bg-orange-500/10 text-orange-600 border-orange-500/20'
+      case 'cleaning': return 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20'
+      default: return 'bg-gray-500/10 text-gray-600 border-gray-500/20'
+    }
+  }
+
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      available: 'Disponible',
+      occupied: 'Ocupada',
+      reserved: 'Reservada',
+      maintenance: 'Mantenimiento',
+      cleaning: 'Limpieza'
+    }
+    return labels[status] || status
+  }
+
+  const getTypeLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      room: 'Habitación',
+      suite: 'Suite',
+      apartment: 'Apartamento'
+    }
+    return labels[type] || type
+  }
+
+  return (
+    <Card className="hover:shadow-elegant-lg transition-all duration-200">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="space-y-1 flex-1">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Bed className="h-4 w-4" />
+              {room.nameOrNumber}
+            </CardTitle>
+            <CardDescription className="flex items-center gap-2 text-xs">
+              <Building2 className="h-3 w-3" />
+              {room.propertyId.name}
+            </CardDescription>
+          </div>
+          <Badge variant="outline" className={`text-xs ${getStatusColor(room.status)}`}>
+            {getStatusLabel(room.status)}
+          </Badge>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="space-y-1">
+            <p className="text-muted-foreground text-xs">Tipo</p>
+            <p className="font-medium">{getTypeLabel(room.type)}</p>
+          </div>
+          
+          <div className="space-y-1">
+            <p className="text-muted-foreground text-xs">Capacidad</p>
+            <div className="flex items-center gap-1">
+              <Users className="h-3 w-3" />
+              <p className="font-medium">
+                {room.capacity.adults} adultos
+                {room.capacity.children ? `, ${room.capacity.children} niños` : ''}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-2 border-t">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">Precio base</span>
+            <div className="flex items-center gap-1">
+              <DollarSign className="h-4 w-4" />
+              <span className="font-semibold text-lg">
+                {room.pricing.basePrice.toLocaleString()} {room.pricing.currency}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {room.amenities && room.amenities.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {room.amenities.slice(0, 3).map((amenity, idx) => (
+              <Badge key={idx} variant="secondary" className="text-xs">
+                {amenity}
+              </Badge>
+            ))}
+            {room.amenities.length > 3 && (
+              <Badge variant="secondary" className="text-xs">
+                +{room.amenities.length - 3}
+              </Badge>
+            )}
+          </div>
+        )}
+
+        <div className="flex gap-2 pt-2">
+          <Button 
+            size="sm" 
+            className="w-full"
+            onClick={() => router.push(`/properties/${room.propertyId._id}`)}
+          >
+            Gestionar en Propiedad
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+export default function RoomsPage() {
+  const [searchTerm, setSearchTerm] = React.useState("")
+  const [rooms, setRooms] = React.useState<Room[]>([])
+  const [isLoading, setIsLoading] = React.useState(true)
+  const [error, setError] = React.useState<string | null>(null)
+  const [userData, setUserData] = React.useState<any>(null)
+  const [tenantData, setTenantData] = React.useState<any>(null)
+  const [isMounted, setIsMounted] = React.useState(false)
+  const [statusFilter, setStatusFilter] = React.useState<string>("all")
+  const [typeFilter, setTypeFilter] = React.useState<string>("all")
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+  const [properties, setProperties] = React.useState<Array<{ _id: string; name: string }>>([])
+
+  React.useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  const loadRooms = React.useCallback(async () => {
+    try {
+      setIsLoading(true)
+      
+      const user = AuthService.getUser()
+      const tenant = AuthService.getTenant()
+      const token = AuthService.getToken()
+      
+      setUserData(user)
+      setTenantData(tenant)
+      
+      if (!token) {
+        window.location.href = '/auth/login'
+        return
+      }
+
+      const params = new URLSearchParams()
+      if (statusFilter !== 'all') params.append('status', statusFilter)
+      if (typeFilter !== 'all') params.append('type', typeFilter)
+      if (searchTerm) params.append('search', searchTerm)
+
+      const response = await fetch(`http://localhost:3000/api/rooms?${params.toString()}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const roomsArray = data.data?.rooms || data.rooms || []
+        setRooms(Array.isArray(roomsArray) ? roomsArray : [])
+      } else if (response.status === 401) {
+        AuthService.clearAuth()
+        window.location.href = '/auth/login'
+      } else {
+        setError('Error al cargar las habitaciones')
+      }
+    } catch (err) {
+      console.error('Error loading rooms:', err)
+      setError('Error de conexión con el servidor')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [statusFilter, typeFilter, searchTerm])
+
+  const loadProperties = React.useCallback(async () => {
+    try {
+      const token = AuthService.getToken()
+      if (!token) return
+
+      const response = await fetch('http://localhost:3000/api/properties', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const propertiesArray = data.data?.properties || data.properties || []
+        setProperties(Array.isArray(propertiesArray) ? propertiesArray : [])
+      }
+    } catch (err) {
+      console.error('Error loading properties:', err)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    if (!isMounted) return
+    loadRooms()
+    loadProperties()
+  }, [isMounted, loadRooms, loadProperties])
+
+  const filteredRooms = Array.isArray(rooms) ? rooms : []
+
+  const stats = {
+    total: filteredRooms.length,
+    available: filteredRooms.filter(r => r.status === 'available').length,
+    occupied: filteredRooms.filter(r => r.status === 'occupied').length,
+    maintenance: filteredRooms.filter(r => r.status === 'maintenance').length,
+  }
+
+  if (isLoading) {
+    return (
+      <MainLayout 
+        user={userData || { name: "Cargando...", email: "", role: "admin" }}
+        tenant={tenantData || { name: "Cargando...", type: "hotel" }}
+      >
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="text-muted-foreground">Cargando habitaciones...</p>
+          </div>
+        </div>
+      </MainLayout>
+    )
+  }
+
+  return (
+    <MainLayout 
+      user={userData || { name: "Usuario", email: "", role: "admin" }}
+      tenant={tenantData || { name: "Mi Hotel", type: "hotel" }}
+    >
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Habitaciones</h1>
+            <p className="text-muted-foreground">
+              Gestiona todas las habitaciones de tus propiedades
+            </p>
+          </div>
+          
+          <Button className="gap-2" onClick={() => setIsDialogOpen(true)}>
+            <Plus className="h-4 w-4" />
+            Nueva Habitación
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-4 flex-wrap">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar habitaciones..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Estado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los estados</SelectItem>
+              <SelectItem value="available">Disponible</SelectItem>
+              <SelectItem value="occupied">Ocupada</SelectItem>
+              <SelectItem value="reserved">Reservada</SelectItem>
+              <SelectItem value="maintenance">Mantenimiento</SelectItem>
+              <SelectItem value="cleaning">Limpieza</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los tipos</SelectItem>
+              <SelectItem value="room">Habitación</SelectItem>
+              <SelectItem value="suite">Suite</SelectItem>
+              <SelectItem value="apartment">Apartamento</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Total Habitaciones
+              </CardTitle>
+              <Bed className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.total}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Disponibles
+              </CardTitle>
+              <div className="h-2 w-2 rounded-full bg-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">{stats.available}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Ocupadas
+              </CardTitle>
+              <div className="h-2 w-2 rounded-full bg-red-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-600">{stats.occupied}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Mantenimiento
+              </CardTitle>
+              <div className="h-2 w-2 rounded-full bg-orange-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-orange-600">{stats.maintenance}</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {filteredRooms.length > 0 ? (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {filteredRooms.map((room) => (
+              <RoomCard key={room._id} room={room} />
+            ))}
+          </div>
+        ) : (
+          <Card className="p-12">
+            <div className="text-center space-y-4">
+              <Bed className="mx-auto h-12 w-12 text-muted-foreground" />
+              <div>
+                <h3 className="text-lg font-semibold mb-2">
+                  {searchTerm || statusFilter !== 'all' || typeFilter !== 'all'
+                    ? 'No se encontraron habitaciones'
+                    : 'No tienes habitaciones registradas'}
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {searchTerm || statusFilter !== 'all' || typeFilter !== 'all'
+                    ? 'Intenta ajustar los filtros de búsqueda'
+                    : 'Comienza agregando habitaciones a tus propiedades'}
+                </p>
+              </div>
+              <Button onClick={() => setIsDialogOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Crear Primera Habitación
+              </Button>
+            </div>
+          </Card>
+        )}
+      </div>
+
+      <RoomFormDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onSuccess={loadRooms}
+        properties={properties}
+      />
+    </MainLayout>
+  )
+}
