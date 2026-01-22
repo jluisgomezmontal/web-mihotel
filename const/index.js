@@ -1,0 +1,53 @@
+export const AMENITIES_LIST = {
+  'Esenciales': [
+    { id: 'wifi', label: 'WiFi' },
+    { id: 'aire_acondicionado', label: 'Aire Acondicionado' },
+    { id: 'tv', label: 'TV' },
+    { id: 'escritorio', label: 'Escritorio' },
+    { id: 'closet', label: 'Closet/Armario' },
+  ],
+  'Baño': [
+    { id: 'bano_privado', label: 'Baño Privado' },
+    { id: 'regadera', label: 'Regadera' },
+    { id: 'tina', label: 'Tina' },
+    { id: 'secadora_pelo', label: 'Secadora de Pelo' },
+    { id: 'articulos_aseo', label: 'Artículos de Aseo' },
+    { id: 'toallas', label: 'Toallas' },
+  ],
+  'Cocina/Comida': [
+    { id: 'minibar', label: 'Minibar' },
+    { id: 'cafetera', label: 'Cafetera' },
+    { id: 'microondas', label: 'Microondas' },
+    { id: 'refrigerador', label: 'Refrigerador' },
+    { id: 'cocina', label: 'Cocina Completa' },
+  ],
+  'Confort': [
+    { id: 'cama_king', label: 'Cama King Size' },
+    { id: 'cama_queen', label: 'Cama Queen Size' },
+    { id: 'cama_matrimonial', label: 'Cama Matrimonial' },
+    { id: 'cama_individual', label: 'Cama Individual' },
+    { id: 'sofa', label: 'Sofá' },
+    { id: 'balcon', label: 'Balcón' },
+    { id: 'terraza', label: 'Terraza' },
+    { id: 'vista_mar', label: 'Vista al Mar' },
+    { id: 'vista_ciudad', label: 'Vista a la Ciudad' },
+  ],
+  'Seguridad': [
+    { id: 'caja_fuerte', label: 'Caja Fuerte' },
+    { id: 'cerradura_electronica', label: 'Cerradura Electrónica' },
+    { id: 'detector_humo', label: 'Detector de Humo' },
+    { id: 'extintor', label: 'Extintor' },
+  ],
+  'Servicios': [
+    { id: 'servicio_habitacion', label: 'Servicio a la Habitación' },
+    { id: 'limpieza_diaria', label: 'Limpieza Diaria' },
+    { id: 'plancha', label: 'Plancha y Tabla' },
+    { id: 'lavanderia', label: 'Servicio de Lavandería' },
+  ],
+  'Otros': [
+    { id: 'mascotas', label: 'Se Permiten Mascotas' },
+    { id: 'no_fumar', label: 'Habitación No Fumadores' },
+    { id: 'insonorizada', label: 'Insonorizada' },
+    { id: 'ventilador', label: 'Ventilador' },
+  ],
+}

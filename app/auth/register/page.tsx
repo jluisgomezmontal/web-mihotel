@@ -21,13 +21,6 @@ const registerSchema = z.object({
   phone: z.string().min(10, "El teléfono debe tener al menos 10 dígitos"),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
   confirmPassword: z.string().min(6, "Confirma tu contraseña"),
-  
-  // Tenant fields
-  tenantName: z.string().min(2, "El nombre del hotel debe tener al menos 2 caracteres"),
-  tenantType: z.enum(["hotel", "posada", "airbnb"], {
-    required_error: "Selecciona el tipo de negocio",
-  }),
-  tenantDescription: z.string().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Las contraseñas no coinciden",
   path: ["confirmPassword"],
@@ -50,9 +43,6 @@ export default function RegisterPage() {
       phone: "",
       password: "",
       confirmPassword: "",
-      tenantName: "",
-      tenantType: "hotel",
-      tenantDescription: "",
     },
   })
 
@@ -68,9 +58,9 @@ export default function RegisterPage() {
         },
         body: JSON.stringify({
           tenant: {
-            name: data.tenantName,
-            type: data.tenantType,
-            plan: 'basic', // Default plan
+            name: `Cuenta de ${data.firstName} ${data.lastName}`,
+            type: 'hotel',
+            plan: 'basic',
             settings: {
               currency: 'USD',
               timezone: 'America/Mexico_City',
@@ -78,7 +68,7 @@ export default function RegisterPage() {
             }
           },
           admin: {
-            name: `${data.firstName} ${data.lastName}`, // Combine first and last name
+            name: `${data.firstName} ${data.lastName}`,
             email: data.email,
             password: data.password,
             profile: {
@@ -95,7 +85,7 @@ export default function RegisterPage() {
         // Registration successful
         await Swal.fire({
           title: "¡Cuenta Creada!",
-          text: `Bienvenido a MiHotel SaaS, ${data.firstName}. Tu cuenta y hotel "${data.tenantName}" han sido creados exitosamente.`,
+          text: `Bienvenido a MiHotel, ${data.firstName}. Tu cuenta ha sido creada exitosamente. Ahora puedes agregar tus propiedades hoteleras.`,
           icon: "success",
           confirmButtonText: "Continuar",
           confirmButtonColor: "hsl(var(--primary))",
@@ -152,7 +142,7 @@ export default function RegisterPage() {
           
           <CardTitle className="text-2xl">Crear Cuenta</CardTitle>
           <CardDescription>
-            Registra tu hotel y comienza a gestionar reservas, huéspedes y más
+            Únete a MiHotel y comienza a gestionar tus propiedades, reservas y huéspedes
           </CardDescription>
         </CardHeader>
 
@@ -283,54 +273,6 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Business Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold border-b pb-2">Información del Negocio</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="tenantName">Nombre del Hotel/Negocio *</Label>
-                  <Input
-                    id="tenantName"
-                    type="text"
-                    placeholder="Hotel Paradise Resort"
-                    {...form.register("tenantName")}
-                    className={form.formState.errors.tenantName ? "border-destructive" : ""}
-                  />
-                  {form.formState.errors.tenantName && (
-                    <p className="text-sm text-destructive">{form.formState.errors.tenantName.message}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="tenantType">Tipo de Negocio *</Label>
-                  <select
-                    id="tenantType"
-                    {...form.register("tenantType")}
-                    className={`flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm ${
-                      form.formState.errors.tenantType ? "border-destructive" : ""
-                    }`}
-                  >
-                    <option value="hotel">Hotel</option>
-                    <option value="posada">Posada</option>
-                    <option value="airbnb">Airbnb</option>
-                  </select>
-                  {form.formState.errors.tenantType && (
-                    <p className="text-sm text-destructive">{form.formState.errors.tenantType.message}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="tenantDescription">Descripción (Opcional)</Label>
-                <Input
-                  id="tenantDescription"
-                  type="text"
-                  placeholder="Breve descripción de tu negocio hotelero"
-                  {...form.register("tenantDescription")}
-                />
-              </div>
-            </div>
 
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (

@@ -17,6 +17,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MainLayout } from "@/components/layout/main-layout"
+import { useDashboard } from "@/contexts/DashboardContext"
 
 interface KPICardProps {
   title: string
@@ -125,84 +126,26 @@ function ReservationItem({ guest, room, checkIn, checkOut, status, nights, amoun
 }
 
 export default function DashboardPage() {
-  const [userData, setUserData] = React.useState<any>(null)
-  const [tenantData, setTenantData] = React.useState<any>(null)
-  const [properties, setProperties] = React.useState<any[]>([])
-  const [reservations, setReservations] = React.useState<any[]>([])
-  const [isLoading, setIsLoading] = React.useState(true)
-  const [error, setError] = React.useState<string | null>(null)
-  const [isMounted, setIsMounted] = React.useState(false)
+  const { properties, reservations, userData, tenantData, isLoading, error, refreshAll } = useDashboard()
 
+  // Refrescar datos cada vez que se navega al dashboard
   React.useEffect(() => {
-    setIsMounted(true)
+    refreshAll()
   }, [])
-
-  React.useEffect(() => {
-    if (!isMounted) return
-
-    const loadDashboardData = async () => {
-      try {
-        setIsLoading(true)
-        
-        // Get user and tenant data from localStorage
-        const user = localStorage.getItem('user_data')
-        const tenant = localStorage.getItem('tenant_data')
-        const token = localStorage.getItem('auth_token')
-        
-        if (user) setUserData(JSON.parse(user))
-        if (tenant) setTenantData(JSON.parse(tenant))
-
-        // Fetch real data from API
-        if (token) {
-            try {
-              // Fetch properties
-              const propertiesRes = await fetch('http://localhost:3000/api/properties', {
-                headers: {
-                  'Authorization': `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                }
-              })
-              
-              if (propertiesRes.ok) {
-                const propertiesData = await propertiesRes.json()
-                setProperties(propertiesData.data || [])
-              }
-
-              // Fetch today's reservations
-              const today = new Date().toISOString().split('T')[0]
-              const reservationsRes = await fetch(`http://localhost:3000/api/reservations?checkInDate=${today}`, {
-                headers: {
-                  'Authorization': `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                }
-              })
-              
-              if (reservationsRes.ok) {
-                const reservationsData = await reservationsRes.json()
-                setReservations(reservationsData.data || [])
-              }
-            } catch (apiError) {
-              console.error('Error fetching dashboard data:', apiError)
-            }
-        }
-      } catch (err) {
-        console.error('Error loading dashboard:', err)
-        setError('Error al cargar los datos del dashboard')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadDashboardData()
-  }, [isMounted])
 
   // Calculate KPIs from real data
   const kpis = React.useMemo(() => {
-    if (!Array.isArray(properties) || !Array.isArray(reservations)) {
+    const propertiesArray = Array.isArray(properties) ? properties : []
+    const reservationsArray = Array.isArray(reservations) ? reservations : []
+
+    if (propertiesArray.length === 0) {
       return {
         occupancyRate: 0,
         totalRooms: 0,
         availableRooms: 0,
+        occupiedRooms: 0,
+        cleaningRooms: 0,
+        maintenanceRooms: 0,
         todayCheckIns: 0,
         todayCheckOuts: 0,
         totalRevenue: 0,
@@ -211,23 +154,51 @@ export default function DashboardPage() {
       }
     }
 
-    const totalRooms = properties.reduce((sum, prop) => sum + (prop.totalRooms || 0), 0)
-    const occupiedRooms = properties.reduce((sum, prop) => sum + (prop.occupiedRooms || 0), 0)
-    const availableRooms = totalRooms - occupiedRooms
+    const totalRooms = propertiesArray.reduce((sum, prop) => sum + (prop.totalRooms || 0), 0)
+    const availableRooms = propertiesArray.reduce((sum, prop) => sum + (prop.availableRooms || 0), 0)
+    const occupiedRooms = propertiesArray.reduce((sum, prop) => sum + (prop.occupiedRooms || 0), 0)
     const occupancyRate = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0
     
-    const todayCheckIns = reservations.filter(r => r.status === 'confirmed').length
-    const todayCheckOuts = reservations.filter(r => r.status === 'checked_in').length
+    const today = new Date().toISOString().split('T')[0]
+    const todayCheckIns = reservationsArray.filter(r => {
+      if (!r.dates?.checkInDate) return false
+      const checkInDate = new Date(r.dates.checkInDate).toISOString().split('T')[0]
+      return checkInDate === today && r.status === 'confirmed'
+    }).length
+    
+    const todayCheckOuts = reservationsArray.filter(r => {
+      if (!r.dates?.checkOutDate) return false
+      const checkOutDate = new Date(r.dates.checkOutDate).toISOString().split('T')[0]
+      return checkOutDate === today && r.status === 'checked_in'
+    }).length
+
+    const monthlyRevenue = reservationsArray
+      .filter(r => {
+        if (!r.dates?.checkInDate) return false
+        const checkIn = new Date(r.dates.checkInDate)
+        const now = new Date()
+        return checkIn.getMonth() === now.getMonth() && 
+               checkIn.getFullYear() === now.getFullYear() &&
+               ['confirmed', 'checked_in', 'checked_out'].includes(r.status)
+      })
+      .reduce((sum, r) => sum + (r.pricing?.totalPrice || 0), 0)
+
+    const averageRate = reservationsArray.length > 0
+      ? Math.round(reservationsArray.reduce((sum, r) => sum + (r.pricing?.totalPrice || 0), 0) / reservationsArray.length)
+      : 0
     
     return {
       occupancyRate,
       totalRooms,
       availableRooms,
+      occupiedRooms,
+      cleaningRooms: 0,
+      maintenanceRooms: 0,
       todayCheckIns,
       todayCheckOuts,
       totalRevenue: 0,
-      monthlyRevenue: 0,
-      averageRate: 0
+      monthlyRevenue,
+      averageRate
     }
   }, [properties, reservations])
 
@@ -272,10 +243,9 @@ export default function DashboardPage() {
           <KPICard
             title="Ocupación"
             value={`${kpis.occupancyRate}%`}
-            change={5.2}
             icon={Building2}
-            description="vs mes pasado"
-            variant="success"
+            description={`${kpis.occupiedRooms} de ${kpis.totalRooms} habitaciones`}
+            variant={kpis.occupancyRate >= 80 ? "success" : kpis.occupancyRate >= 50 ? "warning" : "default"}
           />
           <KPICard
             title="Habitaciones Disponibles"
@@ -293,9 +263,8 @@ export default function DashboardPage() {
           <KPICard
             title="Ingresos del Mes"
             value={`$${kpis.monthlyRevenue.toLocaleString()}`}
-            change={12.3}
             icon={DollarSign}
-            description="vs mes pasado"
+            description="ingresos acumulados"
             variant="success"
           />
         </div>
@@ -312,7 +281,7 @@ export default function DashboardPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {reservations.length > 0 ? (
+                {Array.isArray(reservations) && reservations.length > 0 ? (
                   <>
                     {reservations.map((reservation: any, index: number) => (
                       <ReservationItem
@@ -360,19 +329,19 @@ export default function DashboardPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Ocupadas</span>
-                    <span className="font-medium">{kpis.totalRooms - kpis.availableRooms}</span>
+                    <span className="font-medium text-red-600">{kpis.occupiedRooms}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Disponibles</span>
                     <span className="font-medium text-green-600">{kpis.availableRooms}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span>Limpieza</span>
-                    <span className="font-medium text-yellow-600">8</span>
+                    <span>Total</span>
+                    <span className="font-medium">{kpis.totalRooms}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span>Mantenimiento</span>
-                    <span className="font-medium text-red-600">2</span>
+                    <span>Ocupación</span>
+                    <span className="font-medium text-blue-600">{kpis.occupancyRate}%</span>
                   </div>
                 </div>
               </CardContent>
@@ -384,15 +353,27 @@ export default function DashboardPage() {
                 <CardTitle>Acciones Rápidas</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button className="w-full justify-start" variant="outline">
+                <Button 
+                  className="w-full justify-start" 
+                  variant="outline"
+                  onClick={() => window.location.href = '/reservations'}
+                >
                   <Calendar className="mr-2 h-4 w-4" />
                   Nueva Reserva
                 </Button>
-                <Button className="w-full justify-start" variant="outline">
+                <Button 
+                  className="w-full justify-start" 
+                  variant="outline"
+                  onClick={() => window.location.href = '/guests'}
+                >
                   <Users className="mr-2 h-4 w-4" />
                   Registrar Huésped
                 </Button>
-                <Button className="w-full justify-start" variant="outline">
+                <Button 
+                  className="w-full justify-start" 
+                  variant="outline"
+                  onClick={() => window.location.href = '/rooms'}
+                >
                   <Bed className="mr-2 h-4 w-4" />
                   Gestionar Habitaciones
                 </Button>

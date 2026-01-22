@@ -10,7 +10,9 @@ import { Badge } from "@/components/ui/badge"
 import { MainLayout } from "@/components/layout/main-layout"
 import { AuthService } from "@/lib/auth"
 import { PropertyFormDialog } from "@/components/forms/property-form-dialog"
-import { useSweetAlert } from "@/lib/use-sweet-alert"
+import { useAlert } from "@/lib/use-alert"
+import { AlertDialogCustom } from "@/components/ui/alert-dialog-custom"
+import { useDashboard } from "@/contexts/DashboardContext"
 
 interface Property {
   _id: string
@@ -24,6 +26,7 @@ interface Property {
     zipCode?: string
   }
   totalRooms: number
+  availableRooms?: number
   occupiedRooms?: number
   monthlyRevenue?: number
   isActive: boolean
@@ -50,8 +53,8 @@ function PropertyCard({
   }
 
   const totalRooms = property.totalRooms || 0
+  const availableRooms = property.availableRooms || 0
   const occupiedRooms = property.occupiedRooms || 0
-  const availableRooms = totalRooms - occupiedRooms
   const occupancyRate = totalRooms > 0 
     ? Math.round((occupiedRooms / totalRooms) * 100) 
     : 0
@@ -63,63 +66,87 @@ function PropertyCard({
   }
 
   return (
-    <Card className="hover:shadow-elegant-lg transition-all duration-200 cursor-pointer group">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <CardTitle className="text-lg group-hover:text-primary transition-colors">
-              {property.name}
-            </CardTitle>
-            <CardDescription className="flex items-center gap-2">
-              <MapPin className="h-3 w-3" />
-              {property.address.city}, {property.address.state}
-            </CardDescription>
+    <Card className="group hover:shadow-lg hover:border-primary/20 transition-all duration-300 overflow-hidden">
+      {/* Occupancy Indicator Bar */}
+      <div className="h-1 w-full bg-gradient-to-r from-green-500 via-yellow-500 to-red-500" style={{
+        background: `linear-gradient(to right, 
+          ${occupancyRate >= 80 ? '#22c55e' : occupancyRate >= 60 ? '#eab308' : '#ef4444'} ${occupancyRate}%, 
+          #e5e7eb ${occupancyRate}%)`
+      }} />
+      
+      <CardHeader className="pb-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-md">
+                <Hotel className="h-6 w-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors">
+                  {property.name}
+                </CardTitle>
+                <CardDescription className="flex items-center gap-1.5 text-xs mt-0.5">
+                  <MapPin className="h-3 w-3" />
+                  {property.address.city}, {property.address.state}
+                </CardDescription>
+              </div>
+            </div>
+            <Badge variant="outline" className="text-xs font-semibold">
+              {getTypeLabel(property.type)}
+            </Badge>
           </div>
-          <Badge variant="outline" className="text-xs">
-            {getTypeLabel(property.type)}
-          </Badge>
         </div>
       </CardHeader>
       
       <CardContent className="space-y-4">
-        <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-          <Building2 className="h-8 w-8 text-muted-foreground" />
+        {/* Visual Placeholder */}
+        <div className="aspect-video bg-gradient-to-br from-muted to-muted/50 rounded-lg flex items-center justify-center relative overflow-hidden group-hover:from-primary/5 group-hover:to-primary/10 transition-all">
+          <Building2 className="h-12 w-12 text-muted-foreground/40 group-hover:text-primary/40 transition-colors" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
         </div>
 
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="space-y-1">
-            <div className="flex items-center gap-1 text-muted-foreground">
-              <Bed className="h-3 w-3" />
-              <span>Habitaciones</span>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="p-3 bg-muted/50 rounded-lg space-y-1">
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+              <Bed className="h-4 w-4" />
+              <span className="text-xs font-medium uppercase tracking-wide">Habitaciones</span>
             </div>
-            <p className="font-medium">
-              {availableRooms}/{totalRooms}
-              <span className="text-muted-foreground ml-1">disponibles</span>
+            <p className="font-bold text-lg">
+              {availableRooms}<span className="text-muted-foreground font-normal text-sm">/{totalRooms}</span>
             </p>
+            <p className="text-xs text-muted-foreground">disponibles</p>
           </div>
           
-          <div className="space-y-1">
-            <p className="text-muted-foreground">Ocupación</p>
-            <p className={`font-medium ${getOccupancyColor(occupancyRate)}`}>
+          <div className="p-3 bg-muted/50 rounded-lg space-y-1">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Ocupación</p>
+            <p className={`font-bold text-lg ${getOccupancyColor(occupancyRate)}`}>
               {occupancyRate}%
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {occupiedRooms} ocupadas
             </p>
           </div>
         </div>
 
+        {/* Revenue Section */}
         {property.monthlyRevenue !== undefined && (
-          <div className="pt-2 border-t">
+          <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-200 dark:border-green-800 rounded-lg">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Ingresos del mes</span>
-              <span className="font-semibold">${property.monthlyRevenue.toLocaleString()}</span>
+              <span className="text-xs font-medium text-green-900 dark:text-green-100">Ingresos del mes</span>
+              <span className="font-bold text-lg text-green-700 dark:text-green-400">
+                ${property.monthlyRevenue.toLocaleString()}
+              </span>
             </div>
           </div>
         )}
 
+        {/* Action Buttons */}
         <div className="flex gap-2 pt-2">
           <Button 
             variant="outline"
             size="sm" 
-            className="flex-1"
+            className="flex-1 font-semibold"
             onClick={(e) => {
               e.stopPropagation()
               onEdit(property)
@@ -130,14 +157,16 @@ function PropertyCard({
           </Button>
           <Button 
             size="sm" 
-            className="flex-1"
+            className="flex-1 font-semibold"
             onClick={() => router.push(`/properties/${property._id}`)}
           >
+            <Building2 className="h-4 w-4 mr-1" />
             Gestionar
           </Button>
           <Button 
-            variant="destructive"
+            variant="outline"
             size="sm"
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
             onClick={(e) => {
               e.stopPropagation()
               onDelete(property)
@@ -152,68 +181,11 @@ function PropertyCard({
 }
 
 export default function PropertiesPage() {
+  const { properties, userData, tenantData, isLoading, error, refreshProperties } = useDashboard()
   const [searchTerm, setSearchTerm] = React.useState("")
-  const [properties, setProperties] = React.useState<Property[]>([])
-  const [isLoading, setIsLoading] = React.useState(true)
-  const [error, setError] = React.useState<string | null>(null)
-  const [userData, setUserData] = React.useState<any>(null)
-  const [tenantData, setTenantData] = React.useState<any>(null)
-  const [isMounted, setIsMounted] = React.useState(false)
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
   const [editingProperty, setEditingProperty] = React.useState<Property | undefined>(undefined)
-  const { confirmDelete, showError, showLoading, close } = useSweetAlert()
-
-  React.useEffect(() => {
-    setIsMounted(true)
-  }, [])
-
-  const loadProperties = React.useCallback(async () => {
-    try {
-      setIsLoading(true)
-      
-      // Get user and tenant data
-      const user = AuthService.getUser()
-      const tenant = AuthService.getTenant()
-      const token = AuthService.getToken()
-      
-      setUserData(user)
-      setTenantData(tenant)
-      
-      if (!token) {
-        window.location.href = '/auth/login'
-        return
-      }
-
-      const response = await fetch('http://localhost:3000/api/properties', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        }
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        // La API devuelve { success: true, data: { properties: [...], pagination: {...} } }
-        const propertiesArray = data.data?.properties || data.properties || []
-        setProperties(Array.isArray(propertiesArray) ? propertiesArray : [])
-      } else if (response.status === 401) {
-        AuthService.clearAuth()
-        window.location.href = '/auth/login'
-      } else {
-        setError('Error al cargar las propiedades')
-      }
-    } catch (err) {
-      console.error('Error loading properties:', err)
-      setError('Error de conexión con el servidor')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  React.useEffect(() => {
-    if (!isMounted) return
-    loadProperties()
-  }, [isMounted, loadProperties])
+  const { alertState, hideAlert, confirmDelete, showError, showLoading, close } = useAlert()
 
   const handleDeleteProperty = async (property: Property) => {
     const confirmed = await confirmDelete({
@@ -243,7 +215,7 @@ export default function PropertiesPage() {
       close()
 
       if (response.ok) {
-        loadProperties()
+        refreshProperties()
       } else {
         const data = await response.json()
         await showError('Error al eliminar', data.message || 'No se pudo eliminar la propiedad')
@@ -375,12 +347,13 @@ export default function PropertiesPage() {
         </div>
 
         {filteredProperties.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-[1600px] mx-auto">
             {filteredProperties.map((property) => (
               <PropertyCard 
                 key={property._id} 
                 property={property}
                 onEdit={(prop) => {
+                  console.log(prop)
                   setEditingProperty(prop)
                   setIsDialogOpen(true)
                 }}
@@ -417,8 +390,20 @@ export default function PropertiesPage() {
           setIsDialogOpen(open)
           if (!open) setEditingProperty(undefined)
         }}
-        onSuccess={loadProperties}
+        onSuccess={refreshProperties}
         property={editingProperty as any}
+      />
+      <AlertDialogCustom
+        open={alertState.open}
+        onOpenChange={hideAlert}
+        type={alertState.type}
+        title={alertState.title}
+        description={alertState.description}
+        confirmText={alertState.confirmText}
+        cancelText={alertState.cancelText}
+        onConfirm={alertState.onConfirm}
+        onCancel={alertState.onCancel}
+        showCancel={alertState.showCancel}
       />
     </MainLayout>
   )

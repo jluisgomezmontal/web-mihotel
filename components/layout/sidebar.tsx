@@ -20,7 +20,8 @@ import {
   LogOut,
   Moon,
   Sun,
-  X
+  X,
+  ChevronLeft
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -28,7 +29,6 @@ import { Badge } from "@/components/ui/badge"
 interface SidebarProps {
   isCollapsed: boolean
   onToggle: () => void
-  tenantName?: string
 }
 
 const menuItems = [
@@ -54,7 +54,7 @@ const menuItems = [
     title: "Reservas",
     icon: Calendar,
     href: "/reservations",
-    badge: "new"
+    badge: null
   },
   {
     title: "Huéspedes",
@@ -88,7 +88,7 @@ const menuItems = [
   }
 ]
 
-export function Sidebar({ isCollapsed, onToggle, tenantName = "MiHotel" }: SidebarProps) {
+export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const pathname = usePathname()
   const [isMobileOpen, setIsMobileOpen] = React.useState(false)
 
@@ -110,7 +110,6 @@ export function Sidebar({ isCollapsed, onToggle, tenantName = "MiHotel" }: Sideb
         <SidebarContent 
           isCollapsed={false}
           onToggle={() => setIsMobileOpen(false)}
-          tenantName={tenantName}
           pathname={pathname}
           isMobile={true}
         />
@@ -124,7 +123,6 @@ export function Sidebar({ isCollapsed, onToggle, tenantName = "MiHotel" }: Sideb
         <SidebarContent 
           isCollapsed={isCollapsed}
           onToggle={onToggle}
-          tenantName={tenantName}
           pathname={pathname}
           isMobile={false}
         />
@@ -146,12 +144,11 @@ export function Sidebar({ isCollapsed, onToggle, tenantName = "MiHotel" }: Sideb
 interface SidebarContentProps {
   isCollapsed: boolean
   onToggle: () => void
-  tenantName: string
   pathname: string
   isMobile: boolean
 }
 
-function SidebarContent({ isCollapsed, onToggle, tenantName, pathname, isMobile }: SidebarContentProps) {
+function SidebarContent({ isCollapsed, onToggle, pathname, isMobile }: SidebarContentProps) {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
@@ -160,13 +157,13 @@ function SidebarContent({ isCollapsed, onToggle, tenantName, pathname, isMobile 
           "flex items-center gap-3 transition-all duration-200",
           isCollapsed && !isMobile && "justify-center"
         )}>
-          <div className="flex items-center justify-center w-8 h-8 bg-sidebar-primary rounded-lg">
-            <Hotel className="h-5 w-5 text-sidebar-primary-foreground" />
+          <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl shadow-lg">
+            <Hotel className="h-6 w-6 text-white" />
           </div>
           {(!isCollapsed || isMobile) && (
             <div className="flex flex-col">
-              <span className="font-semibold text-sidebar-foreground">{tenantName}</span>
-              <span className="text-xs text-sidebar-foreground/70">Hotel Management</span>
+              <span className="text-xl font-bold text-sidebar-foreground tracking-tight">MiHotel</span>
+              <span className="text-xs text-sidebar-foreground/60">Sistema de Gestión</span>
             </div>
           )}
         </div>
@@ -178,7 +175,7 @@ function SidebarContent({ isCollapsed, onToggle, tenantName, pathname, isMobile 
             onClick={onToggle}
             className="h-8 w-8 text-sidebar-foreground/70 hover:text-sidebar-foreground"
           >
-            {isMobile ? <X className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            {isMobile ? <X className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </Button>
         )}
       </div>
@@ -216,30 +213,6 @@ function SidebarContent({ isCollapsed, onToggle, tenantName, pathname, isMobile 
           )
         })}
       </nav>
-
-      {/* Footer */}
-      <div className="p-4 border-t border-sidebar-border">
-        {(!isCollapsed || isMobile) && (
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-medium text-sidebar-foreground/70">Tema</span>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            </Button>
-          </div>
-        )}
-        
-        <Button
-          variant="ghost"
-          className={cn(
-            "w-full justify-start gap-3 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent",
-            isCollapsed && !isMobile && "justify-center px-2"
-          )}
-        >
-          <LogOut className="h-5 w-5" />
-          {(!isCollapsed || isMobile) && <span>Cerrar Sesión</span>}
-        </Button>
-      </div>
     </div>
   )
 }

@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { Plus, Search, Bed, Building2, Users, DollarSign, Filter } from "lucide-react"
+import { Plus, Search, Bed, Building2, Users, DollarSign, Filter, Edit, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
@@ -10,6 +10,9 @@ import { Badge } from "@/components/ui/badge"
 import { MainLayout } from "@/components/layout/main-layout"
 import { AuthService } from "@/lib/auth"
 import { RoomFormDialog } from "@/components/forms/room-form-dialog"
+import { useAlert } from "@/lib/use-alert"
+import { AlertDialogCustom } from "@/components/ui/alert-dialog-custom"
+import { useDashboard } from "@/contexts/DashboardContext"
 import {
   Select,
   SelectContent,
@@ -43,7 +46,7 @@ interface Room {
   isActive: boolean
 }
 
-function RoomCard({ room }: { room: Room }) {
+function RoomCard({ room, onEdit, onDelete }: { room: Room, onEdit: (room: Room) => void, onDelete: (room: Room) => void }) {
   const router = useRouter()
 
   const getStatusColor = (status: string) => {
@@ -127,29 +130,35 @@ function RoomCard({ room }: { room: Room }) {
             </div>
           </div>
         </div>
-
-        {room.amenities && room.amenities.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {room.amenities.slice(0, 3).map((amenity, idx) => (
-              <Badge key={idx} variant="secondary" className="text-xs">
-                {amenity}
-              </Badge>
-            ))}
-            {room.amenities.length > 3 && (
-              <Badge variant="secondary" className="text-xs">
-                +{room.amenities.length - 3}
-              </Badge>
-            )}
-          </div>
-        )}
-
         <div className="flex gap-2 pt-2">
           <Button 
+            variant="outline"
             size="sm" 
-            className="w-full"
+            className="flex-1"
+            onClick={(e) => {
+              e.stopPropagation()
+              onEdit(room)
+            }}
+          >
+            <Edit className="h-4 w-4 mr-1" />
+            Editar
+          </Button>
+          <Button 
+            size="sm" 
+            className="flex-1"
             onClick={() => router.push(`/properties/${room.propertyId._id}`)}
           >
-            Gestionar en Propiedad
+            Gestionar
+          </Button>
+          <Button 
+            variant="destructive"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation()
+              onDelete(room)
+            }}
+          >
+            <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       </CardContent>
@@ -168,7 +177,10 @@ export default function RoomsPage() {
   const [statusFilter, setStatusFilter] = React.useState<string>("all")
   const [typeFilter, setTypeFilter] = React.useState<string>("all")
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+  const [editingRoom, setEditingRoom] = React.useState<Room | undefined>(undefined)
   const [properties, setProperties] = React.useState<Array<{ _id: string; name: string }>>([])
+  const { alertState, hideAlert, confirmDelete, showError, showLoading, close } = useAlert()
+  const { refreshRooms: refreshDashboardRooms, refreshProperties: refreshDashboardProperties } = useDashboard()
 
   React.useEffect(() => {
     setIsMounted(true)
@@ -206,6 +218,9 @@ export default function RoomsPage() {
         const data = await response.json()
         const roomsArray = data.data?.rooms || data.rooms || []
         setRooms(Array.isArray(roomsArray) ? roomsArray : [])
+        
+        // Actualizar también el contexto global para que otras páginas vean los cambios
+        await refreshDashboardRooms()
       } else if (response.status === 401) {
         AuthService.clearAuth()
         window.location.href = '/auth/login'
@@ -218,7 +233,7 @@ export default function RoomsPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [statusFilter, typeFilter, searchTerm])
+  }, [statusFilter, typeFilter, searchTerm, refreshDashboardRooms, refreshDashboardProperties])
 
   const loadProperties = React.useCallback(async () => {
     try {
@@ -247,6 +262,46 @@ export default function RoomsPage() {
     loadRooms()
     loadProperties()
   }, [isMounted, loadRooms, loadProperties])
+
+  const handleDeleteRoom = async (room: Room) => {
+    const confirmed = await confirmDelete({
+      title: '¿Eliminar habitación?',
+      text: `Se eliminará permanentemente la habitación "${room.nameOrNumber}". Esta acción no se puede deshacer.`,
+    })
+
+    if (!confirmed) return
+
+    showLoading('Eliminando habitación...')
+    
+    try {
+      const token = AuthService.getToken()
+      if (!token) {
+        close()
+        window.location.href = '/auth/login'
+        return
+      }
+
+      const response = await fetch(`http://localhost:3000/api/rooms/${room._id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      })
+
+      close()
+
+      if (response.ok) {
+        loadRooms()
+      } else {
+        const data = await response.json()
+        await showError('Error al eliminar', data.message || 'No se pudo eliminar la habitación')
+      }
+    } catch (err) {
+      close()
+      console.error('Error deleting room:', err)
+      await showError('Error de conexión', 'No se pudo conectar con el servidor')
+    }
+  }
 
   const filteredRooms = Array.isArray(rooms) ? rooms : []
 
@@ -287,7 +342,10 @@ export default function RoomsPage() {
             </p>
           </div>
           
-          <Button className="gap-2" onClick={() => setIsDialogOpen(true)}>
+          <Button className="gap-2" onClick={() => {
+            setEditingRoom(undefined)
+            setIsDialogOpen(true)
+          }}>
             <Plus className="h-4 w-4" />
             Nueva Habitación
           </Button>
@@ -384,7 +442,15 @@ export default function RoomsPage() {
         {filteredRooms.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredRooms.map((room) => (
-              <RoomCard key={room._id} room={room} />
+              <RoomCard 
+                key={room._id} 
+                room={room}
+                onEdit={(room) => {
+                  setEditingRoom(room)
+                  setIsDialogOpen(true)
+                }}
+                onDelete={handleDeleteRoom}
+              />
             ))}
           </div>
         ) : (
@@ -414,9 +480,25 @@ export default function RoomsPage() {
 
       <RoomFormDialog
         open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
+        onOpenChange={(open) => {
+          setIsDialogOpen(open)
+          if (!open) setEditingRoom(undefined)
+        }}
         onSuccess={loadRooms}
         properties={properties}
+        room={editingRoom}
+      />
+      <AlertDialogCustom
+        open={alertState.open}
+        onOpenChange={hideAlert}
+        type={alertState.type}
+        title={alertState.title}
+        description={alertState.description}
+        confirmText={alertState.confirmText}
+        cancelText={alertState.cancelText}
+        onConfirm={alertState.onConfirm}
+        onCancel={alertState.onCancel}
+        showCancel={alertState.showCancel}
       />
     </MainLayout>
   )

@@ -201,67 +201,6 @@
   background: hsl(var(--muted-foreground) / 0.7);
 }
 
-/* Smooth transitions - excluding select and form elements */
-*:not(select):not([role="listbox"]):not([role="option"]):not([role="combobox"]):not([data-radix-select-trigger]):not([data-radix-select-content]):not([data-radix-select-item]):not([data-radix-select-viewport]) {
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-
-/* Disable all transitions for select elements */
-select,
-[role="listbox"],
-[role="option"],
-[role="combobox"],
-[data-radix-select-trigger],
-[data-radix-select-item],
-[data-radix-select-viewport],
-[data-state="open"],
-[data-state="closed"] {
-  transition: none !important;
-  animation: none !important;
-}
-
-/* Allow positioning transforms but disable transition transforms */
-[data-radix-select-content],
-[data-radix-popper-content-wrapper],
-[data-radix-select-content-impl] {
-  transition: none !important;
-  animation: none !important;
-  /* Keep transforms for positioning but disable transition on them */
-  transition-property: none !important;
-}
-
-/* Override any Radix UI animations specifically */
-[data-radix-select-content] {
-  animation-name: none !important;
-  animation-duration: 0s !important;
-}
-
-/* Force disable focus ring transitions */
-[data-radix-select-trigger]:focus {
-  transition: none !important;
-}
-
-/* Specific fix for room type select */
-#room-type-select [data-radix-select-trigger],
-#room-type-select [data-radix-select-item],
-#room-type-select [data-radix-select-viewport] {
-  transition: none !important;
-  animation: none !important;
-  -webkit-transition: none !important;
-  -moz-transition: none !important;
-  -ms-transition: none !important;
-  -o-transition: none !important;
-}
-
-/* Allow content positioning for room type select */
-#room-type-select [data-radix-select-content] {
-  transition: none !important;
-  animation: none !important;
-  /* Keep positioning transforms */
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
@@ -270,6 +209,7 @@ body {
 
 /* SweetAlert2 Theme Styles */
 .swal2-themed-popup {
+  background-color: hsl(var(--card)) !important;
   border: 1px solid hsl(var(--border)) !important;
   border-radius: 0.5rem !important;
   box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
@@ -278,10 +218,14 @@ body {
 .swal2-themed-title {
   color: hsl(var(--card-foreground)) !important;
   font-weight: 600 !important;
+  font-size: 1.25rem !important;
 }
 
 .swal2-themed-text {
-  color: hsl(var(--muted-foreground)) !important;
+  color: hsl(var(--card-foreground)) !important;
+  opacity: 0.9 !important;
+  white-space: pre-line !important;
+  line-height: 1.6 !important;
 }
 
 .swal2-icon.swal2-warning {
@@ -371,14 +315,23 @@ body {
 
 /* Backdrop */
 .swal2-container {
-  background-color: rgb(0 0 0 / 0.5) !important;
+  background-color: rgb(0 0 0 / 0.6) !important;
+  backdrop-filter: blur(4px) !important;
 }
 
 /* Dark mode specific adjustments */
 .dark .swal2-themed-popup {
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3) !important;
+  background-color: hsl(var(--card)) !important;
+  border-color: hsl(var(--border)) !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5) !important;
 }
 
 .dark .swal2-container {
-  background-color: rgb(0 0 0 / 0.7) !important;
+  background-color: rgb(0 0 0 / 0.8) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+.dark .swal2-themed-text {
+  color: hsl(var(--card-foreground)) !important;
+  opacity: 0.85 !important;
 }

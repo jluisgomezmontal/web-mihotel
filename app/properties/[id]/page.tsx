@@ -10,7 +10,9 @@ import { MainLayout } from "@/components/layout/main-layout"
 import { AuthService } from "@/lib/auth"
 import { RoomFormDialog } from "@/components/forms/room-form-dialog"
 import { PropertyFormDialog } from "@/components/forms/property-form-dialog"
-import { useSweetAlert } from "@/lib/use-sweet-alert"
+import { useAlert } from "@/lib/use-alert"
+import { AlertDialogCustom } from "@/components/ui/alert-dialog-custom"
+import { useDashboard } from "@/contexts/DashboardContext"
 
 interface Property {
   _id: string
@@ -67,7 +69,8 @@ export default function PropertyDetailPage() {
   const [isRoomDialogOpen, setIsRoomDialogOpen] = React.useState(false)
   const [isPropertyDialogOpen, setIsPropertyDialogOpen] = React.useState(false)
   const [editingRoom, setEditingRoom] = React.useState<Room | undefined>(undefined)
-  const { confirmDelete, showError, showLoading, close } = useSweetAlert()
+  const { alertState, hideAlert, confirmDelete, showError, showLoading, close } = useAlert()
+  const { refreshRooms: refreshDashboardRooms, refreshProperties: refreshDashboardProperties } = useDashboard()
 
   const loadPropertyDetails = React.useCallback(async () => {
       try {
@@ -140,14 +143,17 @@ export default function PropertyDetailPage() {
       })
 
       if (roomsResponse.ok) {
-        const roomsData = await roomsResponse.json()
-        const roomsArray = roomsData.data?.rooms || roomsData.rooms || []
+        const response = await roomsResponse.json()
+        const roomsArray = response.data?.rooms || response.rooms || []
         setRooms(Array.isArray(roomsArray) ? roomsArray : [])
+        
+        // Actualizar también el contexto global
+        await refreshDashboardRooms()
       }
-    } catch (err) {
-      console.error('Error loading rooms:', err)
+    } catch (error) {
+      console.error('Error loading rooms:', error)
     }
-  }, [propertyId])
+  }, [propertyId, refreshDashboardRooms])
 
   React.useEffect(() => {
     if (propertyId) {
@@ -469,62 +475,114 @@ export default function PropertyDetailPage() {
           </div>
 
           {rooms.length > 0 ? (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 max-w-[1600px] mx-auto">
               {rooms.map((room) => (
-                <Card key={room._id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          <Bed className="h-4 w-4" />
-                          {room.nameOrNumber}
-                        </CardTitle>
-                        <CardDescription className="text-xs">
-                          {getTypeLabel(room.type)}
-                        </CardDescription>
+                <Card key={room._id} className="group hover:shadow-lg hover:border-primary/20 transition-all duration-300 overflow-hidden">
+                  {/* Status Indicator Bar */}
+                  <div className={`h-1 w-full ${
+                    room.status === 'available' ? 'bg-green-500' :
+                    room.status === 'occupied' ? 'bg-red-500' :
+                    room.status === 'reserved' ? 'bg-blue-500' :
+                    room.status === 'maintenance' ? 'bg-orange-500' :
+                    room.status === 'cleaning' ? 'bg-yellow-500' :
+                    'bg-gray-400'
+                  }`} />
+                  
+                  <CardHeader className="pb-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div className="p-2 bg-primary/10 rounded-lg">
+                            <Bed className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-xl font-bold">
+                              {room.nameOrNumber}
+                            </CardTitle>
+                            <CardDescription className="text-xs font-medium">
+                              {getTypeLabel(room.type)}
+                            </CardDescription>
+                          </div>
+                        </div>
+                        <Badge 
+                          variant="outline" 
+                          className={`text-xs font-semibold ${getStatusColor(room.status)}`}
+                        >
+                          {getStatusLabel(room.status)}
+                        </Badge>
                       </div>
-                      <Badge variant="outline" className={`text-xs ${getStatusColor(room.status)}`}>
-                        {getStatusLabel(room.status)}
-                      </Badge>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-1 text-muted-foreground">
-                        <Users className="h-3 w-3" />
-                        <span>Capacidad</span>
-                      </div>
-                      <span className="font-medium">
-                        {room.capacity.adults} adultos
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm pt-2 border-t">
-                      <span className="text-muted-foreground">Precio</span>
-                      <div className="flex items-center gap-1">
-                        <DollarSign className="h-4 w-4" />
-                        <span className="font-semibold">
-                          {room.pricing.basePrice} {room.pricing.currency}
+                  
+                  <CardContent className="space-y-4">
+                    {/* Capacity Section */}
+                    <div className="p-3 bg-muted/50 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Users className="h-4 w-4" />
+                          <span className="text-xs font-medium uppercase tracking-wide">Capacidad</span>
+                        </div>
+                        <span className="font-semibold text-sm">
+                          {room.capacity.adults} {room.capacity.adults === 1 ? 'adulto' : 'adultos'}
+                          {room.capacity.children ? ` + ${room.capacity.children} ${room.capacity.children === 1 ? 'niño' : 'niños'}` : ''}
                         </span>
                       </div>
                     </div>
+
+                    {/* Pricing Section */}
+                    <div className="flex items-center justify-between py-3 border-t border-b">
+                      <span className="text-sm text-muted-foreground font-medium">Precio por noche</span>
+                      <div className="flex items-center gap-1">
+                        <DollarSign className="h-5 w-5 text-primary" />
+                        <span className="font-bold text-xl">
+                          {room.pricing.basePrice}
+                        </span>
+                        <span className="text-sm text-muted-foreground font-medium">
+                          {room.pricing.currency}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Amenities Preview */}
+                    {room.amenities && room.amenities.length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Amenidades</p>
+                        <div className="flex flex-wrap gap-1">
+                          {room.amenities.slice(0, 3).map((amenity, idx) => (
+                            <Badge key={idx} variant="secondary" className="text-xs">
+                              {amenity}
+                            </Badge>
+                          ))}
+                          {room.amenities.length > 3 && (
+                            <Badge variant="secondary" className="text-xs">
+                              +{room.amenities.length - 3}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
                     <div className="flex gap-2 pt-2">
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        className="flex-1"
+                        className="flex-1 font-semibold"
                         onClick={() => {
                           setEditingRoom(room as any)
                           setIsRoomDialogOpen(true)
                         }}
                       >
+                        <Edit className="mr-2 h-4 w-4" />
                         Editar
                       </Button>
                       <Button 
-                        variant="destructive"
+                        variant="outline"
                         size="sm" 
-                        className="flex-1"
+                        className="flex-1 font-semibold text-destructive hover:text-destructive hover:bg-destructive/10"
                         onClick={() => handleDeleteRoom(room)}
                       >
+                        <Trash2 className="mr-2 h-4 w-4" />
                         Eliminar
                       </Button>
                     </div>
@@ -572,7 +630,19 @@ export default function PropertyDetailPage() {
         open={isPropertyDialogOpen}
         onOpenChange={setIsPropertyDialogOpen}
         onSuccess={loadPropertyDetails}
-        property={property || undefined}
+        property={property}
+      />
+      <AlertDialogCustom
+        open={alertState.open}
+        onOpenChange={hideAlert}
+        type={alertState.type}
+        title={alertState.title}
+        description={alertState.description}
+        confirmText={alertState.confirmText}
+        cancelText={alertState.cancelText}
+        onConfirm={alertState.onConfirm}
+        onCancel={alertState.onCancel}
+        showCancel={alertState.showCancel}
       />
     </MainLayout>
   )

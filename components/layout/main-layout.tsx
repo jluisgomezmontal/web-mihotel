@@ -33,7 +33,6 @@ export function MainLayout({ children, user, tenant }: MainLayoutProps) {
         <Sidebar
           isCollapsed={sidebarCollapsed}
           onToggle={toggleSidebar}
-          tenantName={tenant?.name}
         />
         
         <div className={cn(

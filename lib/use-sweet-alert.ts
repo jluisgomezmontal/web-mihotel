@@ -34,15 +34,17 @@ export const useSweetAlert = () => {
       reverseButtons: true,
       background: `hsl(var(--card))`,
       color: `hsl(var(--card-foreground))`,
+      backdrop: true,
+      allowOutsideClick: true,
       customClass: {
         popup: 'swal2-themed-popup',
         confirmButton: 'swal2-themed-confirm',
         cancelButton: 'swal2-themed-cancel',
         title: 'swal2-themed-title',
         htmlContainer: 'swal2-themed-text',
+        container: 'swal2-container',
       },
       didOpen: () => {
-        // Apply theme-aware styles
         const popup = Swal.getPopup()
         if (popup) {
           popup.style.borderColor = `hsl(var(--border))`
@@ -61,11 +63,13 @@ export const useSweetAlert = () => {
       confirmButtonText: 'Aceptar',
       background: `hsl(var(--card))`,
       color: `hsl(var(--card-foreground))`,
+      backdrop: true,
       customClass: {
         popup: 'swal2-themed-popup',
         confirmButton: 'swal2-themed-primary',
         title: 'swal2-themed-title',
         htmlContainer: 'swal2-themed-text',
+        container: 'swal2-container',
       },
       didOpen: () => {
         const popup = Swal.getPopup()
@@ -84,15 +88,18 @@ export const useSweetAlert = () => {
       confirmButtonText: 'Aceptar',
       background: `hsl(var(--card))`,
       color: `hsl(var(--card-foreground))`,
+      backdrop: true,
       customClass: {
         popup: 'swal2-themed-popup',
         confirmButton: 'swal2-themed-primary',
         title: 'swal2-themed-title',
         htmlContainer: 'swal2-themed-text',
+        container: 'swal2-container',
       },
       didOpen: () => {
         const popup = Swal.getPopup()
         if (popup) {
+          popup.style.backgroundColor = `hsl(var(--card))`
           popup.style.borderColor = `hsl(var(--border))`
         }
       },
@@ -106,9 +113,11 @@ export const useSweetAlert = () => {
       allowEscapeKey: false,
       background: `hsl(var(--card))`,
       color: `hsl(var(--card-foreground))`,
+      backdrop: true,
       customClass: {
         popup: 'swal2-themed-popup',
         title: 'swal2-themed-title',
+        container: 'swal2-container',
       },
       didOpen: () => {
         Swal.showLoading()
