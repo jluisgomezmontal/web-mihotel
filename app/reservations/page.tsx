@@ -17,6 +17,13 @@ import {
 import { Loader } from "@/components/ui/loader"
 import { MainLayout } from "@/components/layout/main-layout"
 import { formatCurrency, formatDate } from "@/lib/utils"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { AuthService } from "@/lib/auth"
 import { useAlert } from "@/lib/use-alert"
 import { AlertDialogCustom } from "@/components/ui/alert-dialog-custom"
@@ -582,18 +589,19 @@ export default function ReservationsPage() {
             />
           </div>
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border rounded-md text-sm"
-          >
-            <option value="all">Todos los estados</option>
-            <option value="pending">Pendiente ({statusCounts.pending || 0})</option>
-            <option value="confirmed">Confirmada ({statusCounts.confirmed || 0})</option>
-            <option value="checked_in">Check-in ({statusCounts.checked_in || 0})</option>
-            <option value="checked_out">Check-out ({statusCounts.checked_out || 0})</option>
-            <option value="cancelled">Cancelada ({statusCounts.cancelled || 0})</option>
-          </select>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Estado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los estados</SelectItem>
+              <SelectItem value="pending">Pendiente ({statusCounts.pending || 0})</SelectItem>
+              <SelectItem value="confirmed">Confirmada ({statusCounts.confirmed || 0})</SelectItem>
+              <SelectItem value="checked_in">Check-in ({statusCounts.checked_in || 0})</SelectItem>
+              <SelectItem value="checked_out">Check-out ({statusCounts.checked_out || 0})</SelectItem>
+              <SelectItem value="cancelled">Cancelada ({statusCounts.cancelled || 0})</SelectItem>
+            </SelectContent>
+          </Select>
 
           <Button variant="outline" className="gap-2">
             <Filter className="h-4 w-4" />

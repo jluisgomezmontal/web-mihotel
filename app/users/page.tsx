@@ -9,6 +9,13 @@ import { Badge } from "@/components/ui/badge"
 import { MainLayout } from "@/components/layout/main-layout"
 import { AuthService } from '@/lib/auth'
 import { statusColors } from '@/lib/theme-utils'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useAlert } from "@/lib/use-alert"
 import { AlertDialogCustom } from "@/components/ui/alert-dialog-custom"
 import { UserFormDialog } from "@/components/forms/user-form-dialog"
@@ -396,26 +403,28 @@ export default function UsersPage() {
             />
           </div>
           
-          <select
-            value={filterRole}
-            onChange={(e) => setFilterRole(e.target.value)}
-            className="px-3 py-2 border rounded-md text-sm"
-          >
-            <option value="all">Todos los roles</option>
-            <option value="admin">Admin ({stats.admins})</option>
-            <option value="staff">Staff ({stats.staff})</option>
-            <option value="cleaning">Limpieza ({stats.cleaning})</option>
-          </select>
+          <Select value={filterRole} onValueChange={setFilterRole}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Rol" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los roles</SelectItem>
+              <SelectItem value="admin">Admin ({stats.admins})</SelectItem>
+              <SelectItem value="staff">Staff ({stats.staff})</SelectItem>
+              <SelectItem value="cleaning">Limpieza ({stats.cleaning})</SelectItem>
+            </SelectContent>
+          </Select>
 
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-3 py-2 border rounded-md text-sm"
-          >
-            <option value="all">Todos los estados</option>
-            <option value="active">Activos ({stats.active})</option>
-            <option value="inactive">Inactivos ({stats.inactive})</option>
-          </select>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Estado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los estados</SelectItem>
+              <SelectItem value="active">Activos ({stats.active})</SelectItem>
+              <SelectItem value="inactive">Inactivos ({stats.inactive})</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

@@ -9,6 +9,13 @@ import { Badge } from "@/components/ui/badge"
 import { MainLayout } from "@/components/layout/main-layout"
 import { formatDate } from "@/lib/utils"
 import { AuthService } from "@/lib/auth"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useAlert } from "@/lib/use-alert"
 import { AlertDialogCustom } from "@/components/ui/alert-dialog-custom"
 import { GuestFormDialog } from "@/components/forms/guest-form-dialog"
@@ -446,15 +453,16 @@ export default function GuestsPage() {
             />
           </div>
           
-          <select
-            value={filterVIP}
-            onChange={(e) => setFilterVIP(e.target.value)}
-            className="px-3 py-2 border rounded-md text-sm"
-          >
-            <option value="all">Todos los huéspedes</option>
-            <option value="vip">VIP ({stats.vip})</option>
-            <option value="regular">Regular ({stats.regular})</option>
-          </select>
+          <Select value={filterVIP} onValueChange={setFilterVIP}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los huéspedes</SelectItem>
+              <SelectItem value="vip">VIP ({stats.vip})</SelectItem>
+              <SelectItem value="regular">Regular ({stats.regular})</SelectItem>
+            </SelectContent>
+          </Select>
 
           <Button variant="outline" className="gap-2">
             <Filter className="h-4 w-4" />

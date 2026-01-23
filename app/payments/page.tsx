@@ -9,6 +9,13 @@ import { Badge } from "@/components/ui/badge"
 import { MainLayout } from "@/components/layout/main-layout"
 import { AuthService } from "@/lib/auth"
 import { useAlert } from "@/lib/use-alert"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { AlertDialogCustom } from "@/components/ui/alert-dialog-custom"
 import { PaymentFormDialog } from "@/components/forms/payment-form-dialog"
 import { RefundDialog } from "@/components/forms/refund-dialog"
@@ -360,27 +367,29 @@ export default function PaymentsPage() {
         </div>
 
         <div className="flex gap-4 items-center">
-          <select
-            value={filterMethod}
-            onChange={(e) => setFilterMethod(e.target.value)}
-            className="px-3 py-2 border rounded-md text-sm"
-          >
-            <option value="all">Todos los métodos</option>
-            <option value="cash">Efectivo</option>
-            <option value="card">Tarjeta</option>
-            <option value="transfer">Transferencia</option>
-          </select>
+          <Select value={filterMethod} onValueChange={setFilterMethod}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Método" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los métodos</SelectItem>
+              <SelectItem value="cash">Efectivo</SelectItem>
+              <SelectItem value="card">Tarjeta</SelectItem>
+              <SelectItem value="transfer">Transferencia</SelectItem>
+            </SelectContent>
+          </Select>
 
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-3 py-2 border rounded-md text-sm"
-          >
-            <option value="all">Todos los estados</option>
-            <option value="pending">Pendiente</option>
-            <option value="partial">Parcial</option>
-            <option value="paid">Pagado</option>
-          </select>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Estado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los estados</SelectItem>
+              <SelectItem value="pending">Pendiente</SelectItem>
+              <SelectItem value="partial">Parcial</SelectItem>
+              <SelectItem value="paid">Pagado</SelectItem>
+            </SelectContent>
+          </Select>
 
           <Button variant="outline" className="gap-2" onClick={loadPayments}>
             <RefreshCw className="h-4 w-4" />
