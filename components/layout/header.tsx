@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Bell, ChevronDown, Moon, Sun, User, LogOut, Settings, Building2 } from "lucide-react"
+import { Bell, ChevronDown, Moon, Sun, User, LogOut, Settings, Building2, Menu } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -29,13 +29,15 @@ interface HeaderProps {
     type: string
   }
   notifications?: number
+  onMobileMenuToggle?: () => void
 }
 
 export function Header({ 
   isCollapsed, 
   user = { name: "Usuario Demo", email: "demo@mihotel.com", role: "admin" },
   tenant = { name: "Hotel Paradise", type: "hotel" },
-  notifications = 3
+  notifications = 3,
+  onMobileMenuToggle
 }: HeaderProps) {
   const { theme, setTheme } = useTheme()
   const [isMounted, setIsMounted] = React.useState(false)
@@ -60,9 +62,17 @@ export function Header({
   return (
     <header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
       <div className="flex h-16 items-center justify-between px-4 lg:px-6 w-full">
-        {/* Left side - Session Info */}
+        {/* Left side - Mobile Menu Button */}
         <div className="flex items-center gap-4">
-
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden h-9 w-9"
+            onClick={onMobileMenuToggle}
+          >
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Toggle menu</span>
+          </Button>
         </div>
 
         {/* Right side - Actions */}

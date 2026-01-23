@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MainLayout } from "@/components/layout/main-layout"
-import { AuthService } from "@/lib/auth"
+import { AuthService } from '@/lib/auth'
+import { statusColors } from '@/lib/theme-utils'
 import { useAlert } from "@/lib/use-alert"
 import { AlertDialogCustom } from "@/components/ui/alert-dialog-custom"
 import { UserFormDialog } from "@/components/forms/user-form-dialog"
@@ -57,16 +58,11 @@ function UserCard({
   onToggleStatus: (id: string, currentStatus: boolean) => void
 }) {
   const getRoleBadge = (role: string) => {
-    switch (role) {
-      case 'admin':
-        return <Badge className="bg-purple-500 hover:bg-purple-600">Admin</Badge>
-      case 'staff':
-        return <Badge className="bg-blue-500 hover:bg-blue-600">Staff</Badge>
-      case 'cleaning':
-        return <Badge className="bg-green-500 hover:bg-green-600">Limpieza</Badge>
-      default:
-        return <Badge variant="outline">{role}</Badge>
+    const roleColors = statusColors.role[role as keyof typeof statusColors.role]
+    if (roleColors) {
+      return <Badge className={roleColors}>{role === 'admin' ? 'Admin' : role === 'staff' ? 'Staff' : 'Limpieza'}</Badge>
     }
+    return <Badge variant="outline">{role}</Badge>
   }
 
   const isCurrentUser = user._id === currentUserId

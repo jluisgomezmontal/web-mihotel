@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MainLayout } from "@/components/layout/main-layout"
-import { AuthService } from "@/lib/auth"
+import { AuthService } from '@/lib/auth'
+import { statusColors, getStatusBarColor } from '@/lib/theme-utils'
 import { RoomFormDialog } from "@/components/forms/room-form-dialog"
 import { PropertyFormDialog } from "@/components/forms/property-form-dialog"
 import { useAlert } from "@/lib/use-alert"
@@ -244,14 +245,7 @@ export default function PropertyDetailPage() {
   }
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'available': return 'bg-green-500/10 text-green-600 border-green-500/20'
-      case 'occupied': return 'bg-red-500/10 text-red-600 border-red-500/20'
-      case 'reserved': return 'bg-blue-500/10 text-blue-600 border-blue-500/20'
-      case 'maintenance': return 'bg-orange-500/10 text-orange-600 border-orange-500/20'
-      case 'cleaning': return 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20'
-      default: return 'bg-gray-500/10 text-gray-600 border-gray-500/20'
-    }
+    return statusColors.room[status as keyof typeof statusColors.room] || 'bg-muted text-muted-foreground border-border'
   }
 
   const getStatusLabel = (status: string) => {
@@ -479,14 +473,7 @@ export default function PropertyDetailPage() {
               {rooms.map((room) => (
                 <Card key={room._id} className="group hover:shadow-lg hover:border-primary/20 transition-all duration-300 overflow-hidden">
                   {/* Status Indicator Bar */}
-                  <div className={`h-1 w-full ${
-                    room.status === 'available' ? 'bg-green-500' :
-                    room.status === 'occupied' ? 'bg-red-500' :
-                    room.status === 'reserved' ? 'bg-blue-500' :
-                    room.status === 'maintenance' ? 'bg-orange-500' :
-                    room.status === 'cleaning' ? 'bg-yellow-500' :
-                    'bg-gray-400'
-                  }`} />
+                  <div className={`h-1 w-full ${getStatusBarColor(room.status, 'room')}`} />
                   
                   <CardHeader className="pb-4">
                     <div className="flex items-start justify-between gap-3">

@@ -29,6 +29,8 @@ import { Badge } from "@/components/ui/badge"
 interface SidebarProps {
   isCollapsed: boolean
   onToggle: () => void
+  isMobileMenuOpen: boolean
+  setIsMobileMenuOpen: (open: boolean) => void
 }
 
 const menuItems = [
@@ -88,28 +90,27 @@ const menuItems = [
   }
 ]
 
-export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
+export function Sidebar({ isCollapsed, onToggle, isMobileMenuOpen, setIsMobileMenuOpen }: SidebarProps) {
   const pathname = usePathname()
-  const [isMobileOpen, setIsMobileOpen] = React.useState(false)
 
   return (
     <>
       {/* Mobile overlay */}
-      {isMobileOpen && (
+      {isMobileMenuOpen && (
         <div 
           className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
-          onClick={() => setIsMobileOpen(false)}
+          onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
       {/* Mobile sidebar */}
       <div className={cn(
         "fixed inset-y-0 left-0 z-50 w-72 bg-sidebar border-r border-sidebar-border transform transition-transform duration-200 ease-in-out lg:hidden",
-        isMobileOpen ? "translate-x-0" : "-translate-x-full"
+        isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <SidebarContent 
           isCollapsed={false}
-          onToggle={() => setIsMobileOpen(false)}
+          onToggle={() => setIsMobileMenuOpen(false)}
           pathname={pathname}
           isMobile={true}
         />
@@ -128,15 +129,6 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         />
       </div>
 
-      {/* Mobile menu button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="fixed top-4 left-4 z-40 lg:hidden"
-        onClick={() => setIsMobileOpen(true)}
-      >
-        <Menu className="h-6 w-6" />
-      </Button>
     </>
   )
 }
@@ -152,7 +144,7 @@ function SidebarContent({ isCollapsed, onToggle, pathname, isMobile }: SidebarCo
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
+      <div className="flex items-center justify-between p-3 border-b border-sidebar-border">
         <div className={cn(
           "flex items-center gap-3 transition-all duration-200",
           isCollapsed && !isMobile && "justify-center"
@@ -163,7 +155,6 @@ function SidebarContent({ isCollapsed, onToggle, pathname, isMobile }: SidebarCo
           {(!isCollapsed || isMobile) && (
             <div className="flex flex-col">
               <span className="text-xl font-bold text-sidebar-foreground tracking-tight">MiHotel</span>
-              <span className="text-xs text-sidebar-foreground/60">Sistema de Gestión</span>
             </div>
           )}
         </div>

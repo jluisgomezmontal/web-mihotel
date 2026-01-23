@@ -22,6 +22,7 @@ interface MainLayoutProps {
 
 export function MainLayout({ children, user, tenant }: MainLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed)
@@ -33,19 +34,22 @@ export function MainLayout({ children, user, tenant }: MainLayoutProps) {
         <Sidebar
           isCollapsed={sidebarCollapsed}
           onToggle={toggleSidebar}
+          isMobileMenuOpen={isMobileMenuOpen}
+          setIsMobileMenuOpen={setIsMobileMenuOpen}
         />
         
         <div className={cn(
-          "transition-all duration-300 ease-in-out",
+          "min-h-screen transition-all duration-300 ease-in-out",
           sidebarCollapsed ? "lg:ml-16" : "lg:ml-72"
         )}>
           <Header
             isCollapsed={sidebarCollapsed}
             user={user}
             tenant={tenant}
+            onMobileMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           />
           
-          <main className="p-4 lg:p-6">
+          <main className="p-4 lg:p-6 pb-20 lg:pb-6">
             {children}
           </main>
         </div>

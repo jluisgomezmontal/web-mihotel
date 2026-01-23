@@ -23,6 +23,7 @@ import { AlertDialogCustom } from "@/components/ui/alert-dialog-custom"
 import { ReservationFormDialog } from "@/components/forms/reservation-form-dialog"
 import { PaymentFormDialog } from "@/components/forms/payment-form-dialog"
 import { useDashboard } from "@/contexts/DashboardContext"
+import { statusColors, getStatusBarColor, actionButtons } from '@/lib/theme-utils'
 
 interface Reservation {
   id: string
@@ -126,13 +127,7 @@ function ReservationCard({
   return (
     <Card className="group hover:shadow-lg hover:border-primary/20 transition-all duration-300 overflow-hidden">
       {/* Status Indicator Bar */}
-      <div className={`h-1 w-full ${
-        reservation.status === 'confirmed' ? 'bg-blue-500' :
-        reservation.status === 'checked_in' ? 'bg-green-500' :
-        reservation.status === 'checked_out' ? 'bg-gray-400' :
-        reservation.status === 'cancelled' ? 'bg-red-500' :
-        'bg-yellow-500'
-      }`} />
+      <div className={`h-1 w-full ${getStatusBarColor(reservation.status, 'reservation')}`} />
       
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between gap-3">
@@ -246,13 +241,13 @@ function ReservationCard({
         <div className="flex flex-col gap-2">
           {/* Primary Action Button */}
           {reservation.status === 'confirmed' && (
-            <Button size="default" onClick={handleCheckIn} className="w-full font-semibold bg-green-600 hover:bg-green-700">
+            <Button size="default" onClick={handleCheckIn} className={`w-full font-semibold ${actionButtons.checkIn}`}>
               <CheckCircle className="mr-2 h-4 w-4" />
               Realizar Check-in
             </Button>
           )}
           {reservation.status === 'checked_in' && (
-            <Button size="default" onClick={handleCheckOut} className="w-full font-semibold bg-blue-600 hover:bg-blue-700">
+            <Button size="default" onClick={handleCheckOut} className={`w-full font-semibold ${actionButtons.checkOut}`}>
               <CheckCircle className="mr-2 h-4 w-4" />
               Realizar Check-out
             </Button>

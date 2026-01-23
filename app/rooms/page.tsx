@@ -12,6 +12,7 @@ import { AuthService } from "@/lib/auth"
 import { RoomFormDialog } from "@/components/forms/room-form-dialog"
 import { useAlert } from "@/lib/use-alert"
 import { AlertDialogCustom } from "@/components/ui/alert-dialog-custom"
+import { statusColors, getStatusBarColor, statsColors } from '@/lib/theme-utils'
 import { useDashboard } from "@/contexts/DashboardContext"
 import {
   Select,
@@ -50,14 +51,7 @@ function RoomCard({ room, onEdit, onDelete }: { room: Room, onEdit: (room: Room)
   const router = useRouter()
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'available': return 'bg-green-500/10 text-green-600 border-green-500/20'
-      case 'occupied': return 'bg-red-500/10 text-red-600 border-red-500/20'
-      case 'reserved': return 'bg-blue-500/10 text-blue-600 border-blue-500/20'
-      case 'maintenance': return 'bg-orange-500/10 text-orange-600 border-orange-500/20'
-      case 'cleaning': return 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20'
-      default: return 'bg-gray-500/10 text-gray-600 border-gray-500/20'
-    }
+    return statusColors.room[status as keyof typeof statusColors.room] || 'bg-muted text-muted-foreground border-border'
   }
 
   const getStatusLabel = (status: string) => {
@@ -171,8 +165,6 @@ export default function RoomsPage() {
   const [rooms, setRooms] = React.useState<Room[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
-  const [userData, setUserData] = React.useState<any>(null)
-  const [tenantData, setTenantData] = React.useState<any>(null)
   const [isMounted, setIsMounted] = React.useState(false)
   const [statusFilter, setStatusFilter] = React.useState<string>("all")
   const [typeFilter, setTypeFilter] = React.useState<string>("all")
@@ -180,7 +172,7 @@ export default function RoomsPage() {
   const [editingRoom, setEditingRoom] = React.useState<Room | undefined>(undefined)
   const [properties, setProperties] = React.useState<Array<{ _id: string; name: string }>>([])
   const { alertState, hideAlert, confirmDelete, showError, showLoading, close } = useAlert()
-  const { refreshRooms: refreshDashboardRooms, refreshProperties: refreshDashboardProperties } = useDashboard()
+  const { refreshRooms: refreshDashboardRooms, refreshProperties: refreshDashboardProperties, userData, tenantData } = useDashboard()
 
   React.useEffect(() => {
     setIsMounted(true)
@@ -190,12 +182,7 @@ export default function RoomsPage() {
     try {
       setIsLoading(true)
       
-      const user = AuthService.getUser()
-      const tenant = AuthService.getTenant()
       const token = AuthService.getToken()
-      
-      setUserData(user)
-      setTenantData(tenant)
       
       if (!token) {
         window.location.href = '/auth/login'
@@ -407,10 +394,10 @@ export default function RoomsPage() {
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Disponibles
               </CardTitle>
-              <div className="h-2 w-2 rounded-full bg-green-500" />
+              <div className={`h-2 w-2 rounded-full ${statsColors.available.dot}`} />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{stats.available}</div>
+              <div className={`text-2xl font-bold ${statsColors.available.text}`}>{stats.available}</div>
             </CardContent>
           </Card>
 
@@ -419,10 +406,10 @@ export default function RoomsPage() {
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Ocupadas
               </CardTitle>
-              <div className="h-2 w-2 rounded-full bg-red-500" />
+              <div className={`h-2 w-2 rounded-full ${statsColors.occupied.dot}`} />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">{stats.occupied}</div>
+              <div className={`text-2xl font-bold ${statsColors.occupied.text}`}>{stats.occupied}</div>
             </CardContent>
           </Card>
 
@@ -486,7 +473,7 @@ export default function RoomsPage() {
         }}
         onSuccess={loadRooms}
         properties={properties}
-        room={editingRoom}
+        room={editingRoom as any}
       />
       <AlertDialogCustom
         open={alertState.open}

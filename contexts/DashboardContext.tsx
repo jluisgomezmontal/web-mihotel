@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { AuthService } from "@/lib/auth"
+import type { User as UserType } from "@/types"
 
 interface Property {
   _id: string
@@ -41,12 +42,6 @@ interface Reservation {
   status: 'pending' | 'confirmed' | 'checked_in' | 'checked_out'
 }
 
-interface User {
-  name: string
-  email: string
-  role: string
-}
-
 interface Tenant {
   name: string
   type: string
@@ -73,7 +68,7 @@ interface DashboardContextType {
   reservations: Reservation[]
   rooms: Room[]
   guests: Guest[]
-  userData: User | null
+  userData: (UserType & { _id: string }) | null
   tenantData: Tenant | null
   isLoading: boolean
   error: string | null
@@ -91,7 +86,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [reservations, setReservations] = React.useState<Reservation[]>([])
   const [rooms, setRooms] = React.useState<Room[]>([])
   const [guests, setGuests] = React.useState<Guest[]>([])
-  const [userData, setUserData] = React.useState<User | null>(null)
+  const [userData, setUserData] = React.useState<(UserType & { _id: string }) | null>(null)
   const [tenantData, setTenantData] = React.useState<Tenant | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
@@ -225,7 +220,12 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       const tenant = AuthService.getTenant()
       const token = AuthService.getToken()
       
-      setUserData(user)
+      // Map user.id to _id for compatibility
+      if (user) {
+        setUserData({ ...user, _id: user.id })
+      } else {
+        setUserData(null)
+      }
       setTenantData(tenant)
 
       if (!token) {
