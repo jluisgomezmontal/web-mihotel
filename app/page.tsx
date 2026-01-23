@@ -47,7 +47,7 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between px-4">
+        <div className="container mx-auto max-w-7xl flex h-16 items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-10 h-10 bg-primary rounded-xl shadow-lg">
               <Hotel className="h-6 w-6 text-primary-foreground" />
@@ -70,18 +70,18 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="container py-24 px-4">
+      <section className="container mx-auto max-w-7xl py-16 md:py-24 px-4 md:px-6">
         <div className="text-center space-y-8 max-w-4xl mx-auto">
           <Badge variant="secondary" className="px-4 py-2">
             🚀 Sistema Completo de Gestión Hotelera
           </Badge>
           
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
             Gestiona tu hotel con
             <span className="text-primary block">inteligencia y estilo</span>
           </h1>
           
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Plataforma SaaS moderna para hoteles, posadas y Airbnb. 
             Reservas, check-in/out, analytics y más en una sola aplicación.
           </p>
@@ -117,7 +117,7 @@ export default function Home() {
       </section>
 
       {/* Features Grid */}
-      <section className="container py-16 px-4">
+      <section className="container mx-auto max-w-7xl py-12 md:py-16 px-4 md:px-6">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">
             Todo lo que necesitas para gestionar tu hotel
@@ -128,7 +128,7 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-w-6xl mx-auto">
           {features.map((feature, index) => (
             <Card key={index} className="hover:shadow-elegant-lg transition-all duration-200">
               <CardHeader>
@@ -150,7 +150,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="container py-16 px-4">
+      <section className="container mx-auto max-w-7xl py-12 md:py-16 px-4 md:px-6">
         <Card className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground border-0">
           <CardContent className="p-12 text-center">
             <h2 className="text-3xl font-bold mb-4">
@@ -174,7 +174,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t bg-muted/30 py-8">
-        <div className="container px-4 text-center text-sm text-muted-foreground">
+        <div className="container mx-auto max-w-7xl px-4 md:px-6 text-center text-sm text-muted-foreground">
           <p> 2024 MiHotel SaaS. Sistema profesional de gestión hotelera.</p>
         </div>
       </footer>
