@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Loader2, AlertTriangle } from "lucide-react"
-import { AuthService } from "@/lib/auth"
+import { AuthService } from '@/lib/auth'
+import { API_BASE_URL } from '@/lib/api-config'
 import { useAlert } from '@/lib/use-alert'
 import { AlertDialogCustom } from '@/components/ui/alert-dialog-custom'
 
@@ -86,7 +87,7 @@ export function RefundDialog({
         reason: formData.reason || undefined
       }
 
-      const response = await fetch(`http://localhost:3000/api/payments/${payment?._id}/refund`, {
+      const response = await fetch(`${API_BASE_URL}/payments/${payment?._id}/refund`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -8,10 +8,11 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { MainLayout } from "@/components/layout/main-layout"
 import { AuthService } from '@/lib/auth'
+import { useAlert } from '@/lib/use-alert'
+import { API_BASE_URL } from '@/lib/api-config'
 import { statusColors, getStatusBarColor } from '@/lib/theme-utils'
 import { RoomFormDialog } from "@/components/forms/room-form-dialog"
 import { PropertyFormDialog } from "@/components/forms/property-form-dialog"
-import { useAlert } from "@/lib/use-alert"
 import { AlertDialogCustom } from "@/components/ui/alert-dialog-custom"
 import { useDashboard } from "@/contexts/DashboardContext"
 
@@ -90,7 +91,7 @@ export default function PropertyDetailPage() {
         }
 
         // Load property details
-        const propertyResponse = await fetch(`http://localhost:3000/api/properties/${propertyId}`, {
+        const propertyResponse = await fetch(`${API_BASE_URL}/properties/${propertyId}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -110,7 +111,7 @@ export default function PropertyDetailPage() {
         }
 
         // Load rooms for this property
-        const roomsResponse = await fetch(`http://localhost:3000/api/rooms/property/${propertyId}`, {
+        const roomsResponse = await fetch(`${API_BASE_URL}/rooms/property/${propertyId}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -182,7 +183,7 @@ export default function PropertyDetailPage() {
         return
       }
 
-      const response = await fetch(`http://localhost:3000/api/properties/${propertyId}`, {
+      const response = await fetch(`${API_BASE_URL}/properties/${propertyId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -222,7 +223,7 @@ export default function PropertyDetailPage() {
         return
       }
 
-      const response = await fetch(`http://localhost:3000/api/rooms/${room._id}`, {
+      const response = await fetch(`${API_BASE_URL}/rooms/${room._id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

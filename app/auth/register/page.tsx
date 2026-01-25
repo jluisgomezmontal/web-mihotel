@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+import { API_BASE_URL } from "@/lib/api-config"
 
 // Validation schema for registration
 const registerSchema = z.object({
@@ -51,7 +52,7 @@ export default function RegisterPage() {
     
     try {
       // Call registration endpoint with correct payload structure
-      const response = await fetch('http://localhost:3000/api/auth/register', {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -116,7 +117,7 @@ export default function RegisterPage() {
       
       await Swal.fire({
         title: "Error de Conexión",
-        text: "No se pudo conectar con el servidor. Verifica que el backend esté ejecutándose en http://localhost:3000",
+        text: "No se pudo conectar con el servidor. Verifica que el backend esté ejecutándose",
         icon: "error",
         confirmButtonText: "Reintentar",
         confirmButtonColor: "hsl(var(--destructive))",

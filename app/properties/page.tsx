@@ -8,9 +8,10 @@ import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MainLayout } from "@/components/layout/main-layout"
-import { AuthService } from "@/lib/auth"
+import { AuthService } from '@/lib/auth'
+import { API_BASE_URL } from '@/lib/api-config'
+import { useAlert } from '@/lib/use-alert'
 import { PropertyFormDialog } from "@/components/forms/property-form-dialog"
-import { useAlert } from "@/lib/use-alert"
 import { AlertDialogCustom } from "@/components/ui/alert-dialog-custom"
 import { useDashboard } from "@/contexts/DashboardContext"
 
@@ -205,7 +206,7 @@ export default function PropertiesPage() {
         return
       }
 
-      const response = await fetch(`http://localhost:3000/api/properties/${property._id}`, {
+      const response = await fetch(`${API_BASE_URL}/properties/${property._id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

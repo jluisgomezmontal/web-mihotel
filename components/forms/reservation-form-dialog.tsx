@@ -19,7 +19,8 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Loader } from "@/components/ui/loader"
 import { Loader2, Calendar, AlertCircle } from "lucide-react"
-import { AuthService } from "@/lib/auth"
+import { AuthService } from '@/lib/auth'
+import { API_BASE_URL } from '@/lib/api-config'
 import { useAlert } from '@/lib/use-alert'
 import { AlertDialogCustom } from '@/components/ui/alert-dialog-custom'
 
@@ -293,8 +294,8 @@ export function ReservationFormDialog({
       }
 
       const url = isEditMode 
-        ? `http://localhost:3000/api/reservations/${reservation._id}`
-        : 'http://localhost:3000/api/reservations'
+        ? `${API_BASE_URL}/reservations/${reservation._id}`
+        : `${API_BASE_URL}/reservations`
 
       const response = await fetch(url, {
         method: isEditMode ? 'PUT' : 'POST',

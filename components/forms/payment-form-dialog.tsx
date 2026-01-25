@@ -14,7 +14,8 @@ import {
   SelectValue 
 } from "@/components/ui/select"
 import { Loader2, CreditCard, Banknote, ArrowLeftRight } from "lucide-react"
-import { AuthService } from "@/lib/auth"
+import { AuthService } from '@/lib/auth'
+import { API_BASE_URL } from '@/lib/api-config'
 import { useAlert } from '@/lib/use-alert'
 import { AlertDialogCustom } from '@/components/ui/alert-dialog-custom'
 
@@ -134,7 +135,7 @@ export function PaymentFormDialog({
         payload.details.bankName = formData.details.bankName || undefined
       }
 
-      const response = await fetch('http://localhost:3000/api/payments', {
+      const response = await fetch(`${API_BASE_URL}/payments`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -20,7 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { AuthService } from "@/lib/auth"
+import { AuthService } from '@/lib/auth'
+import { API_BASE_URL } from '@/lib/api-config'
 import { Loader2 } from "lucide-react"
 
 interface Property {
@@ -116,8 +117,8 @@ export function PropertyFormDialog({ open, onOpenChange, onSuccess, property }: 
       }
 
       const url = isEditMode 
-        ? `http://localhost:3000/api/properties/${property._id}`
-        : 'http://localhost:3000/api/properties'
+        ? `${API_BASE_URL}/properties/${property._id}`
+        : `${API_BASE_URL}/properties`
       
       const method = isEditMode ? 'PUT' : 'POST'
 

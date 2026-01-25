@@ -18,7 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { AuthService } from "@/lib/auth"
+import { AuthService } from '@/lib/auth'
+import { API_BASE_URL } from '@/lib/api-config'
 import { Loader2, Shield } from "lucide-react"
 
 interface UserData {
@@ -60,7 +61,7 @@ export function UserRoleDialog({ open, onOpenChange, onSuccess, user }: UserRole
         return
       }
 
-      const response = await fetch(`http://localhost:3000/api/users/${user._id}/role`, {
+      const response = await fetch(`${API_BASE_URL}/users/${user._id}/role`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

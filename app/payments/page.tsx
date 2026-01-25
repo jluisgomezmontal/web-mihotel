@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MainLayout } from "@/components/layout/main-layout"
-import { AuthService } from "@/lib/auth"
-import { useAlert } from "@/lib/use-alert"
+import { AuthService } from '@/lib/auth'
+import { useAlert } from '@/lib/use-alert'
+import { API_BASE_URL } from '@/lib/api-config'
 import {
   Select,
   SelectContent,
@@ -247,7 +248,7 @@ export default function PaymentsPage() {
         return
       }
 
-      const response = await fetch('http://localhost:3000/api/payments?limit=100', {
+      const response = await fetch(`${API_BASE_URL}/payments?limit=100`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -273,7 +274,7 @@ export default function PaymentsPage() {
       const token = AuthService.getToken()
       if (!token) return
 
-      const response = await fetch('http://localhost:3000/api/reservations?limit=200', {
+      const response = await fetch(`${API_BASE_URL}/reservations?limit=200`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

@@ -85,7 +85,7 @@ export default function LoginPage() {
       
       await Swal.fire({
         title: "Error de Conexión",
-        text: "No se pudo conectar con el servidor. Verifica que el backend esté ejecutándose en http://localhost:3000",
+        text: "No se pudo conectar con el servidor. Verifica que el backend esté ejecutándose",
         icon: "error",
         confirmButtonText: "Reintentar",
         confirmButtonColor: "hsl(var(--destructive))",

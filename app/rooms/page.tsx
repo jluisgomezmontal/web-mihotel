@@ -8,9 +8,10 @@ import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MainLayout } from "@/components/layout/main-layout"
-import { AuthService } from "@/lib/auth"
+import { AuthService } from '@/lib/auth'
+import { API_BASE_URL } from '@/lib/api-config'
+import { useAlert } from '@/lib/use-alert'
 import { RoomFormDialog } from "@/components/forms/room-form-dialog"
-import { useAlert } from "@/lib/use-alert"
 import { AlertDialogCustom } from "@/components/ui/alert-dialog-custom"
 import { statusColors, getStatusBarColor, statsColors } from '@/lib/theme-utils'
 import { useDashboard } from "@/contexts/DashboardContext"
@@ -194,7 +195,7 @@ export default function RoomsPage() {
       if (typeFilter !== 'all') params.append('type', typeFilter)
       if (searchTerm) params.append('search', searchTerm)
 
-      const response = await fetch(`http://localhost:3000/api/rooms?${params.toString()}`, {
+      const response = await fetch(`${API_BASE_URL}/rooms?${params.toString()}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -227,7 +228,7 @@ export default function RoomsPage() {
       const token = AuthService.getToken()
       if (!token) return
 
-      const response = await fetch('http://localhost:3000/api/properties', {
+      const response = await fetch(`${API_BASE_URL}/properties`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -268,7 +269,7 @@ export default function RoomsPage() {
         return
       }
 
-      const response = await fetch(`http://localhost:3000/api/rooms/${room._id}`, {
+      const response = await fetch(`${API_BASE_URL}/rooms/${room._id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

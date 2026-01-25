@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { AuthService } from "@/lib/auth"
+import { API_BASE_URL } from '@/lib/api-config'
 import { Loader2, Key } from "lucide-react"
 
 interface UserData {
@@ -66,7 +67,7 @@ export function UserPasswordDialog({ open, onOpenChange, onSuccess, user }: User
         return
       }
 
-      const response = await fetch(`http://localhost:3000/api/users/${user._id}/reset-password`, {
+      const response = await fetch(`${API_BASE_URL}/users/${user._id}/reset-password`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

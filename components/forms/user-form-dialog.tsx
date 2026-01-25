@@ -20,7 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { AuthService } from "@/lib/auth"
+import { AuthService } from '@/lib/auth'
+import { API_BASE_URL } from '@/lib/api-config'
 import { Loader2 } from "lucide-react"
 
 interface UserData {
@@ -84,8 +85,8 @@ export function UserFormDialog({ open, onOpenChange, onSuccess, user }: UserForm
       }
 
       const url = isEditMode 
-        ? `http://localhost:3000/api/users/${user._id}`
-        : 'http://localhost:3000/api/users'
+        ? `${API_BASE_URL}/users/${user._id}`
+        : `${API_BASE_URL}/users`
       
       const method = isEditMode ? 'PUT' : 'POST'
 

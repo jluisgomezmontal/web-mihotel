@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { AuthService } from "@/lib/auth"
+import { AuthService } from '@/lib/auth'
+import { API_BASE_URL } from '@/lib/api-config'
 import { Loader2, UserCog, Building2, Users, Calendar, BarChart3 } from "lucide-react"
 
 interface UserData {
@@ -64,7 +65,7 @@ export function UserPermissionsDialog({ open, onOpenChange, onSuccess, user }: U
         return
       }
 
-      const response = await fetch(`http://localhost:3000/api/users/${user._id}/permissions`, {
+      const response = await fetch(`${API_BASE_URL}/users/${user._id}/permissions`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

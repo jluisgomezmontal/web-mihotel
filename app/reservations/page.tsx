@@ -24,8 +24,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { AuthService } from "@/lib/auth"
-import { useAlert } from "@/lib/use-alert"
+import { AuthService } from '@/lib/auth'
+import { useAlert } from '@/lib/use-alert'
+import { API_BASE_URL } from '@/lib/api-config'
 import { AlertDialogCustom } from "@/components/ui/alert-dialog-custom"
 import { ReservationFormDialog } from "@/components/forms/reservation-form-dialog"
 import { PaymentFormDialog } from "@/components/forms/payment-form-dialog"
@@ -330,7 +331,7 @@ export default function ReservationsPage() {
         return
       }
 
-      const response = await fetch(`http://localhost:3000/api/reservations/${reservationId}/confirm`, {
+      const response = await fetch(`${API_BASE_URL}/reservations/${reservationId}/confirm`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -373,7 +374,7 @@ export default function ReservationsPage() {
         return
       }
 
-      const response = await fetch(`http://localhost:3000/api/reservations/${reservationId}/checkin`, {
+      const response = await fetch(`${API_BASE_URL}/reservations/${reservationId}/checkin`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -417,7 +418,7 @@ export default function ReservationsPage() {
         return
       }
 
-      const response = await fetch(`http://localhost:3000/api/reservations/${reservationId}/checkout`, {
+      const response = await fetch(`${API_BASE_URL}/reservations/${reservationId}/checkout`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -461,7 +462,7 @@ export default function ReservationsPage() {
         return
       }
 
-      const response = await fetch(`http://localhost:3000/api/reservations/${reservationId}/cancel`, {
+      const response = await fetch(`${API_BASE_URL}/reservations/${reservationId}/cancel`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -504,7 +505,7 @@ export default function ReservationsPage() {
         return
       }
 
-      const response = await fetch(`http://localhost:3000/api/reservations/${reservationId}`, {
+      const response = await fetch(`${API_BASE_URL}/reservations/${reservationId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

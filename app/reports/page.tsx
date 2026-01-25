@@ -18,7 +18,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MainLayout } from "@/components/layout/main-layout"
-import { AuthService } from "@/lib/auth"
+import { AuthService } from '@/lib/auth'
+import { API_BASE_URL } from '@/lib/api-config'
 import { useDashboard } from "@/contexts/DashboardContext"
 import {
   Select,
@@ -65,19 +66,19 @@ export default function ReportsPage() {
 
       // Fetch all reports in parallel
       const [revenueRes, occupancyRes, guestsRes, reservationsRes, dashboardRes] = await Promise.all([
-        fetch(`http://localhost:3000/api/reports/revenue?${params}`, {
+        fetch(`${API_BASE_URL}/reports/revenue?${params}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch(`http://localhost:3000/api/reports/occupancy?${params}`, {
+        fetch(`${API_BASE_URL}/reports/occupancy?${params}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch(`http://localhost:3000/api/reports/guests?${params}`, {
+        fetch(`${API_BASE_URL}/reports/guests?${params}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch(`http://localhost:3000/api/reports/reservations?${params}`, {
+        fetch(`${API_BASE_URL}/reports/reservations?${params}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch(`http://localhost:3000/api/reports/dashboard`, {
+        fetch(`${API_BASE_URL}/reports/dashboard`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ])

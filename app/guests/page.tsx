@@ -8,7 +8,9 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { MainLayout } from "@/components/layout/main-layout"
 import { formatDate } from "@/lib/utils"
-import { AuthService } from "@/lib/auth"
+import { AuthService } from '@/lib/auth'
+import { API_BASE_URL } from '@/lib/api-config'
+import { useAlert } from '@/lib/use-alert'
 import {
   Select,
   SelectContent,
@@ -16,7 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useAlert } from "@/lib/use-alert"
 import { AlertDialogCustom } from "@/components/ui/alert-dialog-custom"
 import { GuestFormDialog } from "@/components/forms/guest-form-dialog"
 import { ReservationFormDialog } from "@/components/forms/reservation-form-dialog"
@@ -226,7 +227,7 @@ export default function GuestsPage() {
         return
       }
 
-      const response = await fetch('http://localhost:3000/api/guests?limit=100', {
+      const response = await fetch(`${API_BASE_URL}/guests?limit=100`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -253,10 +254,10 @@ export default function GuestsPage() {
       if (!token) return
 
       const [propertiesRes, roomsRes] = await Promise.all([
-        fetch('http://localhost:3000/api/properties?limit=100', {
+        fetch(`${API_BASE_URL}/properties?limit=100`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch('http://localhost:3000/api/rooms?limit=100', {
+        fetch(`${API_BASE_URL}/rooms?limit=100`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ])
@@ -303,7 +304,7 @@ export default function GuestsPage() {
         return
       }
 
-      const response = await fetch(`http://localhost:3000/api/guests/${guestId}`, {
+      const response = await fetch(`${API_BASE_URL}/guests/${guestId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -348,7 +349,7 @@ export default function GuestsPage() {
         return
       }
 
-      const response = await fetch(`http://localhost:3000/api/guests/${guestId}/vip`, {
+      const response = await fetch(`${API_BASE_URL}/guests/${guestId}/vip`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge"
 import { MainLayout } from "@/components/layout/main-layout"
 import { AuthService } from '@/lib/auth'
 import { statusColors } from '@/lib/theme-utils'
+import { useAlert } from '@/lib/use-alert'
+import { API_BASE_URL } from '@/lib/api-config'
 import {
   Select,
   SelectContent,
@@ -16,7 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useAlert } from "@/lib/use-alert"
 import { AlertDialogCustom } from "@/components/ui/alert-dialog-custom"
 import { UserFormDialog } from "@/components/forms/user-form-dialog"
 import { UserRoleDialog } from "@/components/forms/user-role-dialog"
@@ -211,7 +212,7 @@ export default function UsersPage() {
         return
       }
 
-      const response = await fetch('http://localhost:3000/api/users?limit=100', {
+      const response = await fetch(`${API_BASE_URL}/users?limit=100`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -254,7 +255,7 @@ export default function UsersPage() {
         return
       }
 
-      const response = await fetch(`http://localhost:3000/api/users/${userId}`, {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -299,7 +300,7 @@ export default function UsersPage() {
         return
       }
 
-      const response = await fetch(`http://localhost:3000/api/users/${userId}/status`, {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/status`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

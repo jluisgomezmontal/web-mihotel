@@ -21,7 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { AuthService } from "@/lib/auth"
+import { AuthService } from '@/lib/auth'
+import { API_BASE_URL } from '@/lib/api-config'
 import { Loader2 } from "lucide-react"
 
 interface Guest {
@@ -105,8 +106,8 @@ export function GuestFormDialog({ open, onOpenChange, onSuccess, guest }: GuestF
       }
 
       const url = isEditMode 
-        ? `http://localhost:3000/api/guests/${guest._id}`
-        : 'http://localhost:3000/api/guests'
+        ? `${API_BASE_URL}/guests/${guest._id}`
+        : `${API_BASE_URL}/guests`
       
       const method = isEditMode ? 'PUT' : 'POST'
 

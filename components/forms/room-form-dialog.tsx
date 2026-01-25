@@ -19,7 +19,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { AuthService } from "@/lib/auth"
+import { AuthService } from '@/lib/auth'
+import { API_BASE_URL } from '@/lib/api-config'
 import { Loader2, AlertCircle } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
 import { AMENITIES_LIST } from "@/const"
@@ -189,8 +190,8 @@ export function RoomFormDialog({
       }
 
       const url = isEditMode 
-        ? `http://localhost:3000/api/rooms/${room._id}`
-        : 'http://localhost:3000/api/rooms'
+        ? `${API_BASE_URL}/rooms/${room._id}`
+        : `${API_BASE_URL}/rooms`
       
       const method = isEditMode ? 'PUT' : 'POST'
 
