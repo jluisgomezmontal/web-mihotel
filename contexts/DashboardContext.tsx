@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { AuthService } from "@/lib/auth"
+import { API_BASE_URL } from "@/lib/api-config"
 import type { User as UserType } from "@/types"
 
 interface Property {
@@ -101,7 +102,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       const token = AuthService.getToken()
       if (!token) return
 
-      const response = await fetch('http://localhost:3000/api/properties', {
+      const response = await fetch(`${API_BASE_URL}/properties`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -132,7 +133,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       const token = AuthService.getToken()
       if (!token) return
 
-      const response = await fetch(`http://localhost:3000/api/reservations?limit=100`, {
+      const response = await fetch(`${API_BASE_URL}/reservations?limit=100`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -161,7 +162,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       const token = AuthService.getToken()
       if (!token) return
 
-      const response = await fetch('http://localhost:3000/api/rooms?limit=100', {
+      const response = await fetch(`${API_BASE_URL}/rooms?limit=100`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -191,7 +192,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       const token = AuthService.getToken()
       if (!token) return
 
-      const response = await fetch('http://localhost:3000/api/guests?limit=100', {
+      const response = await fetch(`${API_BASE_URL}/guests?limit=100`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
