@@ -1,6 +1,5 @@
 import { User, Tenant } from '@/types'
-
-const API_BASE_URL = 'http://localhost:3000/api'
+import { API_BASE_URL } from './api-config'
 
 /**
  * Authentication utilities for MiHotel SaaS
