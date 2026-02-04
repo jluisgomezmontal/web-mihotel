@@ -2,18 +2,21 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { Plus, Search, Building2, MapPin, Bed, Hotel, Edit, Trash2 } from "lucide-react"
+import { Plus, Search, Building2, MapPin, Bed, Hotel, Edit, Trash2, DollarSign, TrendingUp, Sparkles, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MainLayout } from "@/components/layout/main-layout"
+import { PermissionGuard } from "@/components/guards/PermissionGuard"
+import { DashboardSkeleton } from "@/components/ui/skeleton-loader"
 import { AuthService } from '@/lib/auth'
 import { API_BASE_URL } from '@/lib/api-config'
 import { useAlert } from '@/lib/use-alert'
 import { PropertyFormDialog } from "@/components/forms/property-form-dialog"
 import { AlertDialogCustom } from "@/components/ui/alert-dialog-custom"
 import { useDashboard } from "@/contexts/DashboardContext"
+import { cn } from "@/lib/utils"
 
 interface Property {
   _id: string
@@ -60,68 +63,127 @@ function PropertyCard({
     ? Math.round((occupiedRooms / totalRooms) * 100) 
     : 0
 
-  const getOccupancyColor = (rate: number) => {
-    if (rate >= 80) return 'text-green-600'
-    if (rate >= 60) return 'text-yellow-600'
-    return 'text-red-600'
+  const getOccupancyVariant = (rate: number) => {
+    if (rate >= 80) return 'success'
+    if (rate >= 60) return 'warning'
+    return 'danger'
   }
 
+  const getOccupancyColor = (rate: number) => {
+    if (rate >= 80) return 'text-[var(--dashboard-success)]'
+    if (rate >= 60) return 'text-[var(--dashboard-warning)]'
+    return 'text-[var(--dashboard-danger)]'
+  }
+
+  const getOccupancyBg = (rate: number) => {
+    if (rate >= 80) return 'bg-[var(--dashboard-success-light)] border-[var(--dashboard-success)]/20'
+    if (rate >= 60) return 'bg-[var(--dashboard-warning-light)] border-[var(--dashboard-warning)]/20'
+    return 'bg-[var(--dashboard-danger-light)] border-[var(--dashboard-danger)]/20'
+  }
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'hotel': return Hotel
+      case 'airbnb': return Building2
+      case 'posada': return Building2
+      default: return Building2
+    }
+  }
+
+  const TypeIcon = getTypeIcon(property.type)
+
   return (
-    <Card className="group hover:shadow-lg hover:border-primary/20 transition-all duration-300 overflow-hidden">
-      {/* Occupancy Indicator Bar */}
-      <div className="h-1 w-full bg-gradient-to-r from-green-500 via-yellow-500 to-red-500" style={{
-        background: `linear-gradient(to right, 
-          ${occupancyRate >= 80 ? '#22c55e' : occupancyRate >= 60 ? '#eab308' : '#ef4444'} ${occupancyRate}%, 
-          #e5e7eb ${occupancyRate}%)`
-      }} />
+    <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-none shadow-md">
+      {/* Decorative gradient overlay */}
+      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-primary/5 to-transparent rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
-      <CardHeader className="pb-4">
+      {/* Occupancy Indicator Bar with gradient */}
+      <div className="h-1.5 w-full relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-[var(--dashboard-success)] via-[var(--dashboard-warning)] to-[var(--dashboard-danger)] opacity-20" />
+        <div 
+          className={cn(
+            "h-full transition-all duration-500",
+            occupancyRate >= 80 ? "bg-[var(--dashboard-success)]" :
+            occupancyRate >= 60 ? "bg-[var(--dashboard-warning)]" :
+            "bg-[var(--dashboard-danger)]"
+          )}
+          style={{ width: `${occupancyRate}%` }}
+        />
+      </div>
+      
+      <CardHeader className="pb-3 relative">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 space-y-2">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-md">
-                <Hotel className="h-6 w-6 text-white" />
+              <div className="relative p-3 bg-gradient-to-br from-[var(--gradient-primary-from)] to-[var(--gradient-primary-to)] rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <TypeIcon className="h-6 w-6 text-white" />
+                <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
               <div className="flex-1">
                 <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors">
                   {property.name}
                 </CardTitle>
-                <CardDescription className="flex items-center gap-1.5 text-xs mt-0.5">
-                  <MapPin className="h-3 w-3" />
+                <CardDescription className="flex items-center gap-1.5 text-xs mt-1">
+                  <MapPin className="h-3.5 w-3.5" />
                   {property.address.city}, {property.address.state}
                 </CardDescription>
               </div>
             </div>
-            <Badge variant="outline" className="text-xs font-semibold">
+            <Badge 
+              variant="secondary" 
+              className="text-xs font-semibold px-2.5 py-1"
+            >
               {getTypeLabel(property.type)}
             </Badge>
           </div>
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-4">
-        {/* Visual Placeholder */}
-        <div className="aspect-video bg-gradient-to-br from-muted to-muted/50 rounded-lg flex items-center justify-center relative overflow-hidden group-hover:from-primary/5 group-hover:to-primary/10 transition-all">
-          <Building2 className="h-12 w-12 text-muted-foreground/40 group-hover:text-primary/40 transition-colors" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+      <CardContent className="space-y-3 relative">
+        {/* Visual Placeholder with enhanced design */}
+        <div className="aspect-video bg-gradient-to-br from-muted via-muted/80 to-muted/50 rounded-xl flex items-center justify-center relative overflow-hidden group-hover:from-primary/10 group-hover:via-primary/5 group-hover:to-primary/5 transition-all duration-500">
+          <Building2 className="h-16 w-16 text-muted-foreground/30 group-hover:text-primary/50 group-hover:scale-110 transition-all duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />
+          <div className="absolute top-3 right-3">
+            <Badge variant="outline" className="backdrop-blur-sm bg-background/80 border-primary/20">
+              {totalRooms} habitaciones
+            </Badge>
+          </div>
         </div>
 
-        {/* Stats Grid */}
+        {/* Stats Grid with modern design */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="p-3 bg-muted/50 rounded-lg space-y-1">
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <Bed className="h-4 w-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Habitaciones</span>
+          <div className="p-3 bg-gradient-to-br from-[var(--dashboard-info-light)] to-transparent border border-[var(--dashboard-info)]/20 rounded-xl space-y-1.5 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-1.5">
+              <div className="p-1.5 bg-[var(--dashboard-info)]/10 rounded-lg">
+                <Bed className="h-3.5 w-3.5 text-[var(--dashboard-info)]" />
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Disponibles</span>
             </div>
-            <p className="font-bold text-lg">
-              {availableRooms}<span className="text-muted-foreground font-normal text-sm">/{totalRooms}</span>
+            <p className="font-bold text-2xl text-[var(--dashboard-info)]">
+              {availableRooms}
             </p>
-            <p className="text-xs text-muted-foreground">disponibles</p>
+            <p className="text-xs text-muted-foreground">
+              de {totalRooms} total
+            </p>
           </div>
           
-          <div className="p-3 bg-muted/50 rounded-lg space-y-1">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Ocupación</p>
-            <p className={`font-bold text-lg ${getOccupancyColor(occupancyRate)}`}>
+          <div className={cn(
+            "p-3 rounded-xl space-y-1.5 border hover:shadow-md transition-shadow",
+            getOccupancyBg(occupancyRate)
+          )}>
+            <div className="flex items-center gap-1.5">
+              <div className={cn(
+                "p-1.5 rounded-lg",
+                occupancyRate >= 80 ? "bg-[var(--dashboard-success)]/10" :
+                occupancyRate >= 60 ? "bg-[var(--dashboard-warning)]/10" :
+                "bg-[var(--dashboard-danger)]/10"
+              )}>
+                <TrendingUp className={cn("h-3.5 w-3.5", getOccupancyColor(occupancyRate))} />
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Ocupación</span>
+            </div>
+            <p className={cn("font-bold text-2xl", getOccupancyColor(occupancyRate))}>
               {occupancyRate}%
             </p>
             <p className="text-xs text-muted-foreground">
@@ -130,50 +192,56 @@ function PropertyCard({
           </div>
         </div>
 
-        {/* Revenue Section */}
+        {/* Revenue Section with enhanced design */}
         {property.monthlyRevenue !== undefined && (
-          <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-200 dark:border-green-800 rounded-lg">
+          <div className="p-3 bg-gradient-to-r from-[var(--dashboard-success-light)] to-transparent border border-[var(--dashboard-success)]/20 rounded-xl hover:shadow-md transition-shadow">
             <div className="flex justify-between items-center">
-              <span className="text-xs font-medium text-green-900 dark:text-green-100">Ingresos del mes</span>
-              <span className="font-bold text-lg text-green-700 dark:text-green-400">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-[var(--dashboard-success)]/10 rounded-lg">
+                  <DollarSign className="h-4 w-4 text-[var(--dashboard-success)]" />
+                </div>
+                <span className="text-xs font-semibold text-muted-foreground">Ingresos del mes</span>
+              </div>
+              <span className="font-bold text-lg text-[var(--dashboard-success)]">
                 ${property.monthlyRevenue.toLocaleString()}
               </span>
             </div>
           </div>
         )}
 
-        {/* Action Buttons */}
+        {/* Action Buttons with enhanced design */}
         <div className="flex gap-2 pt-2">
           <Button 
             variant="outline"
             size="sm" 
-            className="flex-1 font-semibold"
+            className="flex-1 font-semibold group/btn hover:border-primary/50 transition-all"
             onClick={(e) => {
               e.stopPropagation()
               onEdit(property)
             }}
           >
-            <Edit className="h-4 w-4 mr-1" />
+            <Edit className="h-4 w-4 mr-1.5 group-hover/btn:scale-110 transition-transform" />
             Editar
           </Button>
           <Button 
             size="sm" 
-            className="flex-1 font-semibold"
+            className="flex-1 font-semibold group/btn hover:shadow-lg transition-all"
             onClick={() => router.push(`/properties/${property._id}`)}
           >
-            <Building2 className="h-4 w-4 mr-1" />
+            <Building2 className="h-4 w-4 mr-1.5 group-hover/btn:scale-110 transition-transform" />
             Gestionar
+            <ArrowRight className="h-3.5 w-3.5 ml-1 opacity-0 -translate-x-2 group-hover/btn:opacity-100 group-hover/btn:translate-x-0 transition-all" />
           </Button>
           <Button 
             variant="outline"
             size="sm"
-            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+            className="text-[var(--dashboard-danger)] hover:text-[var(--dashboard-danger)] hover:bg-[var(--dashboard-danger-light)] hover:border-[var(--dashboard-danger)]/30 transition-all group/btn"
             onClick={(e) => {
               e.stopPropagation()
               onDelete(property)
             }}
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-4 w-4 group-hover/btn:scale-110 transition-transform" />
           </Button>
         </div>
       </CardContent>
@@ -249,12 +317,7 @@ export default function PropertiesPage() {
         user={userData || { name: "Cargando...", email: "", role: "admin" }}
         tenant={tenantData || { name: "Cargando...", type: "hotel" }}
       >
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center space-y-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="text-muted-foreground">Cargando propiedades...</p>
-          </div>
-        </div>
+        <DashboardSkeleton />
       </MainLayout>
     )
   }
@@ -264,97 +327,126 @@ export default function PropertiesPage() {
       user={userData || { name: "Usuario", email: "", role: "admin" }}
       tenant={tenantData || { name: "Mi Hotel", type: "hotel" }}
     >
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Propiedades</h1>
-            <p className="text-muted-foreground">
+      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        {/* Header with modern design */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                Propiedades
+              </h1>
+              <Sparkles className="h-6 w-6 text-primary animate-pulse" />
+            </div>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Gestiona tus hoteles, posadas y propiedades Airbnb
             </p>
           </div>
           
-          <Button className="gap-2" onClick={() => {
-            setEditingProperty(undefined)
-            setIsDialogOpen(true)
-          }}>
-            <Plus className="h-4 w-4" />
+          <Button 
+            className="group gap-2 hover:shadow-lg transition-all duration-300" 
+            onClick={() => {
+              setEditingProperty(undefined)
+              setIsDialogOpen(true)
+            }}
+          >
+            <Plus className="h-4 w-4 group-hover:rotate-90 transition-transform duration-300" />
             Nueva Propiedad
           </Button>
         </div>
 
+        {/* Search bar with enhanced design */}
         <div className="flex items-center gap-4">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar propiedades..."
+              placeholder="Buscar por nombre o ciudad..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9"
+              className="pl-9 h-11 border-2 focus:border-primary/50 transition-colors"
             />
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        {/* Stats Cards with modern design */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-none shadow-md bg-gradient-to-br from-[var(--gradient-primary-from)]/10 to-[var(--gradient-primary-to)]/5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Total Propiedades
               </CardTitle>
-              <Building2 className="h-4 w-4 text-muted-foreground" />
+              <div className="p-2.5 rounded-xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
+                <Building2 className="h-5 w-5" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.total}</div>
+              <div className="text-3xl font-bold tracking-tight">{stats.total}</div>
+              <p className="text-xs text-muted-foreground mt-1">activas</p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-none shadow-md bg-gradient-to-br from-[var(--dashboard-info)]/10 to-[var(--dashboard-info)]/5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Total Habitaciones
               </CardTitle>
-              <Bed className="h-4 w-4 text-muted-foreground" />
+              <div className="p-2.5 rounded-xl bg-[var(--dashboard-info-light)] text-[var(--dashboard-info)] group-hover:scale-110 transition-transform">
+                <Bed className="h-5 w-5" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalRooms}</div>
+              <div className="text-3xl font-bold tracking-tight text-[var(--dashboard-info)]">{stats.totalRooms}</div>
+              <p className="text-xs text-muted-foreground mt-1">en todas las propiedades</p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-none shadow-md bg-gradient-to-br from-[var(--dashboard-warning)]/10 to-[var(--dashboard-warning)]/5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Ocupadas
+                Habitaciones Ocupadas
               </CardTitle>
-              <Hotel className="h-4 w-4 text-muted-foreground" />
+              <div className="p-2.5 rounded-xl bg-[var(--dashboard-warning-light)] text-[var(--dashboard-warning)] group-hover:scale-110 transition-transform">
+                <Hotel className="h-5 w-5" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.occupiedRooms}</div>
-              <p className="text-xs text-muted-foreground">
-                {stats.totalRooms > 0 ? Math.round((stats.occupiedRooms / stats.totalRooms) * 100) : 0}% ocupación
-              </p>
+              <div className="text-3xl font-bold tracking-tight text-[var(--dashboard-warning)]">{stats.occupiedRooms}</div>
+              <div className="flex items-center gap-1 mt-1">
+                <TrendingUp className="h-3 w-3 text-[var(--dashboard-warning)]" />
+                <p className="text-xs font-medium text-[var(--dashboard-warning)]">
+                  {stats.totalRooms > 0 ? Math.round((stats.occupiedRooms / stats.totalRooms) * 100) : 0}% ocupación
+                </p>
+              </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-none shadow-md bg-gradient-to-br from-[var(--dashboard-success)]/10 to-[var(--dashboard-success)]/5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Ingresos Totales
               </CardTitle>
+              <div className="p-2.5 rounded-xl bg-[var(--dashboard-success-light)] text-[var(--dashboard-success)] group-hover:scale-110 transition-transform">
+                <DollarSign className="h-5 w-5" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${stats.totalRevenue.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">este mes</p>
+              <div className="text-3xl font-bold tracking-tight text-[var(--dashboard-success)]">${stats.totalRevenue.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground mt-1">este mes</p>
             </CardContent>
           </Card>
         </div>
 
+        {/* Properties Grid */}
         {filteredProperties.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-[1600px] mx-auto">
+          <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 max-w-[1600px]">
             {filteredProperties.map((property) => (
               <PropertyCard 
                 key={property._id} 
                 property={property}
                 onEdit={(prop) => {
-                  console.log(prop)
                   setEditingProperty(prop)
                   setIsDialogOpen(true)
                 }}
@@ -363,21 +455,28 @@ export default function PropertiesPage() {
             ))}
           </div>
         ) : (
-          <Card className="p-12">
-            <div className="text-center space-y-4">
-              <Building2 className="mx-auto h-12 w-12 text-muted-foreground" />
-              <div>
-                <h3 className="text-lg font-semibold mb-2">
+          <Card className="border-none shadow-md p-16">
+            <div className="text-center space-y-6">
+              <div className="relative inline-block">
+                <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl" />
+                <Building2 className="relative mx-auto h-20 w-20 text-primary/40" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-2xl font-bold">
                   {searchTerm ? 'No se encontraron propiedades' : 'No tienes propiedades registradas'}
                 </h3>
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className="text-sm text-muted-foreground max-w-md mx-auto">
                   {searchTerm 
-                    ? 'Intenta con otros términos de búsqueda' 
-                    : 'Comienza agregando tu primera propiedad para gestionar reservas y habitaciones'}
+                    ? 'Intenta con otros términos de búsqueda o ajusta los filtros' 
+                    : 'Comienza agregando tu primera propiedad para gestionar reservas y habitaciones de manera eficiente'}
                 </p>
               </div>
-              <Button onClick={() => setIsDialogOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" />
+              <Button 
+                onClick={() => setIsDialogOpen(true)}
+                className="group gap-2 hover:shadow-lg transition-all"
+                size="lg"
+              >
+                <Plus className="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" />
                 Crear Primera Propiedad
               </Button>
             </div>
@@ -385,6 +484,7 @@ export default function PropertiesPage() {
         )}
       </div>
 
+      {/* Dialogs */}
       <PropertyFormDialog
         open={isDialogOpen}
         onOpenChange={(open) => {
@@ -394,6 +494,7 @@ export default function PropertiesPage() {
         onSuccess={refreshProperties}
         property={editingProperty as any}
       />
+      
       <AlertDialogCustom
         open={alertState.open}
         onOpenChange={hideAlert}

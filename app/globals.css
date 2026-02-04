@@ -35,6 +35,144 @@
   --sidebar-accent-foreground: oklch(0.2435 0 0);
   --sidebar-border: oklch(0.9037 0 0);
   --sidebar-ring: oklch(0.8348 0.1302 160.9080);
+  
+  /* Dashboard specific colors - Modern & Elegant Palette */
+  --dashboard-success: oklch(0.72 0.18 152);        /* Emerald green - vibrant & fresh */
+  --dashboard-success-light: oklch(0.96 0.04 152);  /* Soft emerald background */
+  --dashboard-warning: oklch(0.78 0.16 75);         /* Warm amber - attention without alarm */
+  --dashboard-warning-light: oklch(0.96 0.04 75);   /* Soft amber background */
+  --dashboard-info: oklch(0.68 0.19 245);           /* Deep blue - trust & professionalism */
+  --dashboard-info-light: oklch(0.96 0.04 245);     /* Soft blue background */
+  --dashboard-danger: oklch(0.62 0.22 27);          /* Coral red - clear but not harsh */
+  --dashboard-danger-light: oklch(0.96 0.04 27);    /* Soft coral background */
+  
+  /* Gradient colors - Premium feel */
+  --gradient-primary-from: oklch(0.72 0.18 165);    /* Teal */
+  --gradient-primary-to: oklch(0.62 0.20 185);      /* Deep cyan */
+  --gradient-success-from: oklch(0.75 0.18 150);    /* Bright emerald */
+  --gradient-success-to: oklch(0.65 0.20 168);      /* Deep teal */
+  --gradient-warning-from: oklch(0.82 0.16 80);     /* Bright amber */
+  --gradient-warning-to: oklch(0.72 0.18 65);       /* Deep gold */
+  --gradient-info-from: oklch(0.70 0.19 250);       /* Bright blue */
+  --gradient-info-to: oklch(0.60 0.21 265);         /* Deep indigo */
+  
+  /* Card enhancements - Subtle depth */
+  --card-hover: oklch(0.985 0.002 180);             /* Barely tinted white */
+  --card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --card-shadow-hover: 0 4px 12px -2px rgb(0 0 0 / 0.12), 0 2px 6px -2px rgb(0 0 0 / 0.08);
+  --card-shadow-lg: 0 12px 24px -4px rgb(0 0 0 / 0.14), 0 6px 12px -4px rgb(0 0 0 / 0.10);
+  --card-shadow-xl: 0 20px 40px -8px rgb(0 0 0 / 0.16), 0 8px 16px -6px rgb(0 0 0 / 0.12);
+  
+  /* Surface & Background tokens */
+  --surface: oklch(1 0 0);                          /* Pure white surface */
+  --surface-elevated: oklch(0.99 0 0);              /* Slightly elevated surface */
+  --surface-overlay: oklch(0.98 0 0);               /* Overlay surface */
+  
+  /* Text hierarchy */
+  --text-primary: oklch(0.20 0 0);                  /* Main text - almost black */
+  --text-secondary: oklch(0.50 0 0);                /* Secondary text - gray */
+  --text-tertiary: oklch(0.65 0 0);                 /* Tertiary text - light gray */
+  --text-disabled: oklch(0.75 0 0);                 /* Disabled text */
+  
+  /* Border tokens */
+  --border-subtle: oklch(0.92 0 0);                 /* Subtle border */
+  --border-default: oklch(0.88 0 0);                /* Default border */
+  --border-strong: oklch(0.75 0 0);                 /* Strong border */
+  
+  /* Room status colors - Modern & Professional */
+  --room-available: oklch(0.72 0.18 152);           /* Emerald - disponible */
+  --room-available-light: oklch(0.96 0.04 152);
+  --room-occupied: oklch(0.62 0.22 27);             /* Coral - ocupada */
+  --room-occupied-light: oklch(0.96 0.04 27);
+  --room-reserved: oklch(0.68 0.19 245);            /* Blue - reservada */
+  --room-reserved-light: oklch(0.96 0.04 245);
+  --room-maintenance: oklch(0.70 0.18 40);          /* Orange - mantenimiento */
+  --room-maintenance-light: oklch(0.96 0.04 40);
+  --room-cleaning: oklch(0.78 0.16 75);             /* Amber - limpieza */
+  --room-cleaning-light: oklch(0.96 0.04 75);
+  
+  /* Reservation status colors - Professional & Modern */
+  --reservation-pending: oklch(0.78 0.16 75);       /* Amber - pendiente */
+  --reservation-pending-light: oklch(0.96 0.04 75);
+  --reservation-confirmed: oklch(0.72 0.18 152);    /* Emerald - confirmada */
+  --reservation-confirmed-light: oklch(0.96 0.04 152);
+  --reservation-checked-in: oklch(0.68 0.19 245);   /* Blue - checked in */
+  --reservation-checked-in-light: oklch(0.96 0.04 245);
+  --reservation-checked-out: oklch(0.50 0 0);       /* Gray - checked out */
+  --reservation-checked-out-light: oklch(0.94 0 0);
+  --reservation-cancelled: oklch(0.62 0.22 27);     /* Coral - cancelada */
+  --reservation-cancelled-light: oklch(0.96 0.04 27);
+  
+  /* Payment status colors */
+  --payment-pending: oklch(0.78 0.16 75);           /* Amber */
+  --payment-pending-light: oklch(0.96 0.04 75);
+  --payment-partial: oklch(0.68 0.19 245);          /* Blue */
+  --payment-partial-light: oklch(0.96 0.04 245);
+  --payment-paid: oklch(0.72 0.18 152);             /* Emerald */
+  --payment-paid-light: oklch(0.96 0.04 152);
+  
+  /* Payment method colors - Financial UI */
+  --payment-cash: oklch(0.70 0.14 75);              /* Amber - Cash */
+  --payment-cash-light: oklch(0.96 0.04 75);
+  --payment-card: oklch(0.68 0.19 245);             /* Blue - Card */
+  --payment-card-light: oklch(0.96 0.04 245);
+  --payment-transfer: oklch(0.70 0.15 280);         /* Purple - Transfer */
+  --payment-transfer-light: oklch(0.96 0.04 280);
+  
+  /* Refund colors */
+  --payment-refund: oklch(0.62 0.22 27);            /* Coral - Refund */
+  --payment-refund-light: oklch(0.96 0.04 27);
+  
+  /* Financial accent colors */
+  --financial-positive: oklch(0.72 0.18 152);       /* Green - Positive */
+  --financial-positive-light: oklch(0.96 0.04 152);
+  --financial-negative: oklch(0.62 0.22 27);        /* Red - Negative */
+  --financial-negative-light: oklch(0.96 0.04 27);
+  --financial-neutral: oklch(0.68 0.19 245);        /* Blue - Neutral */
+  --financial-neutral-light: oklch(0.96 0.04 245);
+  
+  /* Modal design tokens */
+  --modal-overlay: oklch(0 0 0 / 0.5);              /* Semi-transparent black */
+  --modal-background: oklch(1 0 0);                 /* Pure white */
+  --modal-border: oklch(0.90 0 0);                  /* Light gray border */
+  --modal-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04);
+  
+  /* User role colors - Professional & Modern */
+  --user-admin: oklch(0.70 0.15 280);               /* Purple - Admin */
+  --user-admin-light: oklch(0.96 0.04 280);
+  --user-staff: oklch(0.68 0.19 245);               /* Blue - Staff */
+  --user-staff-light: oklch(0.96 0.04 245);
+  --user-cleaning: oklch(0.72 0.18 152);            /* Emerald - Cleaning */
+  --user-cleaning-light: oklch(0.96 0.04 152);
+  
+  /* User status colors */
+  --user-active: oklch(0.72 0.18 152);              /* Green - Active */
+  --user-active-light: oklch(0.96 0.04 152);
+  --user-inactive: oklch(0.60 0.02 0);              /* Gray - Inactive */
+  --user-inactive-light: oklch(0.94 0.01 0);
+  
+  /* Form states - Modern & Accessible */
+  --form-focus: oklch(0.72 0.18 165);               /* Teal - Focus state */
+  --form-focus-ring: oklch(0.72 0.18 165 / 0.2);    /* Focus ring */
+  --form-error: oklch(0.62 0.22 27);                /* Coral - Error state */
+  --form-error-light: oklch(0.96 0.04 27);          /* Error background */
+  --form-success: oklch(0.72 0.18 152);             /* Emerald - Success state */
+  --form-success-light: oklch(0.96 0.04 152);       /* Success background */
+  --form-disabled: oklch(0.75 0 0);                 /* Gray - Disabled text */
+  --form-disabled-bg: oklch(0.96 0 0);              /* Disabled background */
+  
+  /* Guest loyalty levels - Professional & Modern */
+  --loyalty-vip: oklch(0.75 0.15 85);               /* Gold - VIP */
+  --loyalty-vip-light: oklch(0.96 0.04 85);
+  --loyalty-gold: oklch(0.70 0.14 75);              /* Amber - Gold */
+  --loyalty-gold-light: oklch(0.96 0.04 75);
+  --loyalty-silver: oklch(0.60 0.02 0);             /* Silver - Silver */
+  --loyalty-silver-light: oklch(0.94 0.01 0);
+  --loyalty-bronze: oklch(0.65 0.12 40);            /* Orange - Bronze */
+  --loyalty-bronze-light: oklch(0.96 0.04 40);
+  --guest-blacklisted: oklch(0.62 0.22 27);         /* Coral - Bloqueado */
+  --guest-blacklisted-light: oklch(0.96 0.04 27);
+  
   --font-sans: Outfit, sans-serif;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: monospace;
@@ -90,6 +228,144 @@
   --sidebar-accent-foreground: oklch(0.9851 0 0);
   --sidebar-border: oklch(0.2809 0 0);
   --sidebar-ring: oklch(0.8003 0.1821 151.7110);
+  
+  /* Dashboard specific colors - Dark mode - Modern & Elegant */
+  --dashboard-success: oklch(0.68 0.18 152);        /* Bright emerald for dark bg */
+  --dashboard-success-light: oklch(0.28 0.10 152);  /* Deep emerald background */
+  --dashboard-warning: oklch(0.74 0.16 75);         /* Bright amber for dark bg */
+  --dashboard-warning-light: oklch(0.28 0.10 75);   /* Deep amber background */
+  --dashboard-info: oklch(0.65 0.19 245);           /* Bright blue for dark bg */
+  --dashboard-info-light: oklch(0.28 0.10 245);     /* Deep blue background */
+  --dashboard-danger: oklch(0.60 0.22 27);          /* Bright coral for dark bg */
+  --dashboard-danger-light: oklch(0.28 0.10 27);    /* Deep coral background */
+  
+  /* Gradient colors - Dark mode - Premium feel */
+  --gradient-primary-from: oklch(0.55 0.18 165);    /* Medium teal */
+  --gradient-primary-to: oklch(0.45 0.20 185);      /* Deep cyan */
+  --gradient-success-from: oklch(0.58 0.18 150);    /* Medium emerald */
+  --gradient-success-to: oklch(0.48 0.20 168);      /* Deep teal */
+  --gradient-warning-from: oklch(0.62 0.16 80);     /* Medium amber */
+  --gradient-warning-to: oklch(0.52 0.18 65);       /* Deep gold */
+  --gradient-info-from: oklch(0.58 0.19 250);       /* Medium blue */
+  --gradient-info-to: oklch(0.48 0.21 265);         /* Deep indigo */
+  
+  /* Card enhancements - Dark mode - Elevated depth */
+  --card-hover: oklch(0.24 0.008 180);              /* Slightly lighter dark */
+  --card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.35);
+  --card-shadow-hover: 0 4px 12px -2px rgb(0 0 0 / 0.5), 0 2px 6px -2px rgb(0 0 0 / 0.4);
+  --card-shadow-lg: 0 12px 24px -4px rgb(0 0 0 / 0.6), 0 6px 12px -4px rgb(0 0 0 / 0.5);
+  --card-shadow-xl: 0 20px 40px -8px rgb(0 0 0 / 0.7), 0 8px 16px -6px rgb(0 0 0 / 0.6);
+  
+  /* Surface & Background tokens - Dark mode */
+  --surface: oklch(0.18 0 0);                       /* Dark surface */
+  --surface-elevated: oklch(0.22 0 0);              /* Elevated dark surface */
+  --surface-overlay: oklch(0.25 0 0);               /* Overlay dark surface */
+  
+  /* Text hierarchy - Dark mode */
+  --text-primary: oklch(0.95 0 0);                  /* Main text - almost white */
+  --text-secondary: oklch(0.70 0 0);                /* Secondary text - light gray */
+  --text-tertiary: oklch(0.55 0 0);                 /* Tertiary text - gray */
+  --text-disabled: oklch(0.45 0 0);                 /* Disabled text */
+  
+  /* Border tokens - Dark mode */
+  --border-subtle: oklch(0.25 0 0);                 /* Subtle border */
+  --border-default: oklch(0.30 0 0);                /* Default border */
+  --border-strong: oklch(0.40 0 0);                 /* Strong border */
+  
+  /* Room status colors - Dark mode */
+  --room-available: oklch(0.68 0.18 152);
+  --room-available-light: oklch(0.28 0.10 152);
+  --room-occupied: oklch(0.60 0.22 27);
+  --room-occupied-light: oklch(0.28 0.10 27);
+  --room-reserved: oklch(0.65 0.19 245);
+  --room-reserved-light: oklch(0.28 0.10 245);
+  --room-maintenance: oklch(0.68 0.18 40);
+  --room-maintenance-light: oklch(0.28 0.10 40);
+  --room-cleaning: oklch(0.74 0.16 75);
+  --room-cleaning-light: oklch(0.28 0.10 75);
+  
+  /* Reservation status colors - Dark mode */
+  --reservation-pending: oklch(0.74 0.16 75);
+  --reservation-pending-light: oklch(0.28 0.10 75);
+  --reservation-confirmed: oklch(0.68 0.18 152);
+  --reservation-confirmed-light: oklch(0.28 0.10 152);
+  --reservation-checked-in: oklch(0.65 0.19 245);
+  --reservation-checked-in-light: oklch(0.28 0.10 245);
+  --reservation-checked-out: oklch(0.55 0 0);
+  --reservation-checked-out-light: oklch(0.25 0 0);
+  --reservation-cancelled: oklch(0.60 0.22 27);
+  --reservation-cancelled-light: oklch(0.28 0.10 27);
+  
+  /* Payment status colors - Dark mode */
+  --payment-pending: oklch(0.74 0.16 75);
+  --payment-pending-light: oklch(0.28 0.10 75);
+  --payment-partial: oklch(0.64 0.19 245);
+  --payment-partial-light: oklch(0.28 0.10 245);
+  --payment-paid: oklch(0.68 0.18 152);
+  --payment-paid-light: oklch(0.28 0.10 152);
+  
+  /* Payment method colors - Dark mode */
+  --payment-cash: oklch(0.68 0.14 75);
+  --payment-cash-light: oklch(0.28 0.10 75);
+  --payment-card: oklch(0.64 0.19 245);
+  --payment-card-light: oklch(0.28 0.10 245);
+  --payment-transfer: oklch(0.68 0.15 280);
+  --payment-transfer-light: oklch(0.28 0.10 280);
+  
+  /* Refund colors - Dark mode */
+  --payment-refund: oklch(0.60 0.22 27);
+  --payment-refund-light: oklch(0.28 0.10 27);
+  
+  /* Financial accent colors - Dark mode */
+  --financial-positive: oklch(0.68 0.18 152);
+  --financial-positive-light: oklch(0.28 0.10 152);
+  --financial-negative: oklch(0.60 0.22 27);
+  --financial-negative-light: oklch(0.28 0.10 27);
+  --financial-neutral: oklch(0.64 0.19 245);
+  --financial-neutral-light: oklch(0.28 0.10 245);
+  
+  /* Modal design tokens - Dark mode */
+  --modal-overlay: oklch(0 0 0 / 0.7);              /* Darker overlay */
+  --modal-background: oklch(0.20 0 0);              /* Dark background */
+  --modal-border: oklch(0.30 0 0);                  /* Dark border */
+  --modal-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 10px 10px -5px rgb(0 0 0 / 0.3);
+  
+  /* User role colors - Dark mode */
+  --user-admin: oklch(0.68 0.15 280);
+  --user-admin-light: oklch(0.28 0.10 280);
+  --user-staff: oklch(0.64 0.19 245);
+  --user-staff-light: oklch(0.28 0.10 245);
+  --user-cleaning: oklch(0.68 0.18 152);
+  --user-cleaning-light: oklch(0.28 0.10 152);
+  
+  /* User status colors - Dark mode */
+  --user-active: oklch(0.68 0.18 152);
+  --user-active-light: oklch(0.28 0.10 152);
+  --user-inactive: oklch(0.55 0.02 0);
+  --user-inactive-light: oklch(0.25 0.01 0);
+  
+  /* Form states - Dark mode */
+  --form-focus: oklch(0.68 0.18 165);
+  --form-focus-ring: oklch(0.68 0.18 165 / 0.2);
+  --form-error: oklch(0.60 0.22 27);
+  --form-error-light: oklch(0.28 0.10 27);
+  --form-success: oklch(0.68 0.18 152);
+  --form-success-light: oklch(0.28 0.10 152);
+  --form-disabled: oklch(0.45 0 0);
+  --form-disabled-bg: oklch(0.25 0 0);
+  
+  /* Guest loyalty levels - Dark mode */
+  --loyalty-vip: oklch(0.72 0.15 85);
+  --loyalty-vip-light: oklch(0.28 0.10 85);
+  --loyalty-gold: oklch(0.68 0.14 75);
+  --loyalty-gold-light: oklch(0.28 0.10 75);
+  --loyalty-silver: oklch(0.65 0.02 0);
+  --loyalty-silver-light: oklch(0.25 0.01 0);
+  --loyalty-bronze: oklch(0.63 0.12 40);
+  --loyalty-bronze-light: oklch(0.28 0.10 40);
+  --guest-blacklisted: oklch(0.60 0.22 27);
+  --guest-blacklisted-light: oklch(0.28 0.10 27);
+  
   --font-sans: Outfit, sans-serif;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: monospace;

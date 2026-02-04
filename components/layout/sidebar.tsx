@@ -4,6 +4,9 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { AuthService } from "@/lib/auth"
+import { canAccessRoute } from "@/lib/permissions"
+import type { User } from "@/types"
 import {
   Building2,
   Calendar,
@@ -38,55 +41,64 @@ const menuItems = [
     title: "Dashboard",
     icon: Home,
     href: "/dashboard",
-    badge: null
+    badge: null,
+    requiresPermission: false
   },
   {
     title: "Propiedades",
     icon: Building2,
     href: "/properties",
-    badge: null
+    badge: null,
+    requiresPermission: true
   },
   {
     title: "Habitaciones",
     icon: Bed,
     href: "/rooms",
-    badge: null
+    badge: null,
+    requiresPermission: true
   },
   {
     title: "Reservas",
     icon: Calendar,
     href: "/reservations",
-    badge: null
+    badge: null,
+    requiresPermission: true
   },
   {
     title: "Huéspedes",
     icon: UserCheck,
     href: "/guests",
-    badge: null
+    badge: null,
+    requiresPermission: true
   },
   {
     title: "Pagos",
     icon: CreditCard,
     href: "/payments",
-    badge: null
+    badge: null,
+    requiresPermission: true
   },
   {
     title: "Usuarios",
     icon: Users,
     href: "/users",
-    badge: null
+    badge: null,
+    requiresPermission: true
   },
   {
     title: "Reportes",
     icon: BarChart3,
     href: "/reports",
-    badge: null
+    badge: null,
+    requiresPermission: true
   },
   {
     title: "Configuración",
     icon: Settings,
     href: "/settings",
-    badge: null
+    badge: null,
+    requiresPermission: false
   }
 ]
 
@@ -141,6 +153,25 @@ interface SidebarContentProps {
 }
 
 function SidebarContent({ isCollapsed, onToggle, pathname, isMobile }: SidebarContentProps) {
+  const [user, setUser] = React.useState<User | null>(null)
+
+  React.useEffect(() => {
+    setUser(AuthService.getUser())
+  }, [])
+
+  // Filter menu items based on user permissions
+  const accessibleMenuItems = React.useMemo(() => {
+    if (!user) return []
+    
+    return menuItems.filter(item => {
+      // If item doesn't require permission check, show it
+      if (!item.requiresPermission) return true
+      
+      // Check if user has access to this route
+      return canAccessRoute(user, item.href)
+    })
+  }, [user])
+
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
@@ -173,7 +204,7 @@ function SidebarContent({ isCollapsed, onToggle, pathname, isMobile }: SidebarCo
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2">
-        {menuItems.map((item) => {
+        {accessibleMenuItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
           

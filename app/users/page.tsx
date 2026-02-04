@@ -1,14 +1,16 @@
 "use client"
 
 import * as React from "react"
-import { Plus, Search, Filter, User, Edit, Trash2, Shield, Key, UserCog, Power } from "lucide-react"
+import { Plus, Search, Filter, User, Edit, Trash2, Shield, Key, UserCog, Power, Sparkles, Users, CheckCircle, XCircle, Mail, Phone, Clock, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MainLayout } from "@/components/layout/main-layout"
+import { PermissionGuard } from "@/components/guards/PermissionGuard"
+import { DashboardSkeleton } from "@/components/ui/skeleton-loader"
 import { AuthService } from '@/lib/auth'
-import { statusColors } from '@/lib/theme-utils'
+import { cn } from '@/lib/utils'
 import { useAlert } from '@/lib/use-alert'
 import { API_BASE_URL } from '@/lib/api-config'
 import {
@@ -65,38 +67,71 @@ function UserCard({
   onResetPassword: (user: UserData) => void
   onToggleStatus: (id: string, currentStatus: boolean) => void
 }) {
-  const getRoleBadge = (role: string) => {
-    const roleColors = statusColors.role[role as keyof typeof statusColors.role]
-    if (roleColors) {
-      return <Badge className={roleColors}>{role === 'admin' ? 'Admin' : role === 'staff' ? 'Staff' : 'Limpieza'}</Badge>
-    }
-    return <Badge variant="outline">{role}</Badge>
+  const roleColors = {
+    admin: { color: 'text-[var(--user-admin)]', bg: 'bg-[var(--user-admin-light)]', border: 'border-[var(--user-admin)]/20', icon: Shield },
+    staff: { color: 'text-[var(--user-staff)]', bg: 'bg-[var(--user-staff-light)]', border: 'border-[var(--user-staff)]/20', icon: UserCog },
+    cleaning: { color: 'text-[var(--user-cleaning)]', bg: 'bg-[var(--user-cleaning-light)]', border: 'border-[var(--user-cleaning)]/20', icon: User }
+  }
+  
+  const statusColors = {
+    active: { color: 'text-[var(--user-active)]', bg: 'bg-[var(--user-active-light)]', border: 'border-[var(--user-active)]/20', icon: CheckCircle },
+    inactive: { color: 'text-[var(--user-inactive)]', bg: 'bg-[var(--user-inactive-light)]', border: 'border-[var(--user-inactive)]/20', icon: XCircle }
+  }
+  
+  const roleColor = roleColors[user.role as keyof typeof roleColors] || roleColors.staff
+  const statusColor = user.isActive ? statusColors.active : statusColors.inactive
+  const RoleIcon = roleColor.icon
+  const StatusIcon = statusColor.icon
+  
+  const isCurrentUser = user._id === currentUserId
+  
+  const roleLabels = {
+    admin: 'Administrador',
+    staff: 'Staff',
+    cleaning: 'Limpieza'
   }
 
-  const isCurrentUser = user._id === currentUserId
-
   return (
-    <Card className="hover:shadow-elegant transition-all duration-200">
-      <CardHeader className="pb-3">
+    <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-none shadow-md">
+      {/* Gradiente decorativo */}
+      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-primary/5 to-transparent rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      {/* Barra de estado superior */}
+      <div className={cn("h-1.5 w-full transition-all duration-500", user.isActive ? 'bg-[var(--user-active)]' : 'bg-[var(--user-inactive)]')} />
+      
+      <CardHeader className="pb-3 relative">
         <div className="flex items-start justify-between">
           <div className="space-y-2 flex-1">
-            <div className="flex items-center gap-2">
-              <CardTitle className="text-base">{user.name}</CardTitle>
-              {getRoleBadge(user.role)}
-              {!user.isActive && (
-                <Badge variant="destructive">Inactivo</Badge>
-              )}
-              {isCurrentUser && (
-                <Badge variant="outline" className="text-xs">Tú</Badge>
-              )}
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className={cn("p-2 rounded-lg shadow-md group-hover:scale-110 transition-transform duration-300", roleColor.bg, roleColor.border, "border")}>
+                <RoleIcon className={cn("h-4 w-4", roleColor.color)} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-base truncate">{user.name}</CardTitle>
+                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                  <Badge className={cn("gap-1.5 text-xs font-semibold px-2.5 py-1 border", roleColor.color, roleColor.bg, roleColor.border)}>
+                    <RoleIcon className="h-3 w-3" />
+                    {roleLabels[user.role as keyof typeof roleLabels]}
+                  </Badge>
+                  <Badge className={cn("gap-1.5 text-xs font-semibold px-2.5 py-1 border", statusColor.color, statusColor.bg, statusColor.border)}>
+                    <StatusIcon className="h-3 w-3" />
+                    {user.isActive ? 'Activo' : 'Inactivo'}
+                  </Badge>
+                  {isCurrentUser && (
+                    <Badge variant="outline" className="text-xs">Tú</Badge>
+                  )}
+                </div>
+              </div>
             </div>
-            <div className="space-y-1 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <span>{user.email}</span>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 text-sm">
+                <Mail className="h-3.5 w-3.5 text-[var(--dashboard-info)]" />
+                <span className="text-muted-foreground truncate">{user.email}</span>
               </div>
               {user.profile.phone && (
-                <div className="flex items-center gap-2">
-                  <span>{user.profile.phone}</span>
+                <div className="flex items-center gap-2 text-sm">
+                  <Phone className="h-3.5 w-3.5 text-[var(--dashboard-success)]" />
+                  <span className="text-muted-foreground">{user.profile.phone}</span>
                 </div>
               )}
             </div>
@@ -104,84 +139,97 @@ function UserCard({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        <div className="space-y-2 text-sm">
-          <p className="font-medium text-muted-foreground">Permisos:</p>
+      <CardContent className="space-y-4 relative">
+        <div className="p-3 bg-gradient-to-br from-[var(--surface-elevated)] to-transparent border border-[var(--border-subtle)] rounded-xl">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Permisos</p>
           <div className="grid grid-cols-2 gap-2">
             {user.permissions.canManageProperties && (
-              <Badge variant="outline" className="text-xs justify-center">Propiedades</Badge>
+              <Badge variant="outline" className="text-xs justify-center py-1.5">Propiedades</Badge>
             )}
             {user.permissions.canManageUsers && (
-              <Badge variant="outline" className="text-xs justify-center">Usuarios</Badge>
+              <Badge variant="outline" className="text-xs justify-center py-1.5">Usuarios</Badge>
             )}
             {user.permissions.canManageReservations && (
-              <Badge variant="outline" className="text-xs justify-center">Reservas</Badge>
+              <Badge variant="outline" className="text-xs justify-center py-1.5">Reservas</Badge>
             )}
             {user.permissions.canViewReports && (
-              <Badge variant="outline" className="text-xs justify-center">Reportes</Badge>
+              <Badge variant="outline" className="text-xs justify-center py-1.5">Reportes</Badge>
             )}
           </div>
         </div>
 
         {user.lastLoginAt && (
-          <div className="text-xs text-muted-foreground border-t pt-3">
-            Último acceso: {new Date(user.lastLoginAt).toLocaleDateString('es-ES', {
+          <div className="flex items-center gap-2 text-xs text-muted-foreground p-2 bg-muted/30 rounded-lg">
+            <Clock className="h-3.5 w-3.5" />
+            <span>Último acceso: {new Date(user.lastLoginAt).toLocaleDateString('es-ES', {
               year: 'numeric',
               month: 'short',
               day: 'numeric',
               hour: '2-digit',
               minute: '2-digit'
-            })}
+            })}</span>
           </div>
         )}
 
-        <div className="flex gap-2 pt-2 flex-wrap">
+        <div className="flex flex-col gap-2 pt-2">
+          <Button 
+            variant="outline" 
+            size="default" 
+            onClick={() => onEdit(user)}
+            className="group w-full font-semibold hover:border-primary/50 transition-all"
+          >
+            <Edit className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
+            Editar Usuario
+          </Button>
+          <div className="grid grid-cols-4 gap-2">
+            <Button 
+              variant="outline"
+              size="sm" 
+              onClick={() => onChangeRole(user)}
+              disabled={isCurrentUser}
+              className="group"
+              title="Cambiar rol"
+            >
+              <Shield className="h-4 w-4 group-hover:scale-110 transition-transform" />
+            </Button>
+            <Button 
+              variant="outline"
+              size="sm" 
+              onClick={() => onChangePermissions(user)}
+              className="group"
+              title="Gestionar permisos"
+            >
+              <UserCog className="h-4 w-4 group-hover:scale-110 transition-transform" />
+            </Button>
+            <Button 
+              variant="outline"
+              size="sm" 
+              onClick={() => onResetPassword(user)}
+              className="group"
+              title="Restablecer contraseña"
+            >
+              <Key className="h-4 w-4 group-hover:scale-110 transition-transform" />
+            </Button>
+            <Button 
+              variant={user.isActive ? "outline" : "default"}
+              size="sm" 
+              onClick={() => onToggleStatus(user._id, user.isActive)}
+              disabled={isCurrentUser}
+              className={cn("group", user.isActive ? "" : "bg-[var(--user-active)] hover:bg-[var(--user-active)]/90")}
+              title={user.isActive ? 'Desactivar' : 'Activar'}
+            >
+              <Power className="h-4 w-4 group-hover:scale-110 transition-transform" />
+            </Button>
+          </div>
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => onEdit(user)}
-            className="flex-1"
-          >
-            <Edit className="h-4 w-4 mr-1" />
-            Editar
-          </Button>
-          <Button 
-            variant="outline"
-            size="sm" 
-            onClick={() => onChangeRole(user)}
-            disabled={isCurrentUser}
-          >
-            <Shield className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant="outline"
-            size="sm" 
-            onClick={() => onChangePermissions(user)}
-          >
-            <UserCog className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant="outline"
-            size="sm" 
-            onClick={() => onResetPassword(user)}
-          >
-            <Key className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant={user.isActive ? "outline" : "default"}
-            size="sm" 
-            onClick={() => onToggleStatus(user._id, user.isActive)}
-            disabled={isCurrentUser}
-          >
-            <Power className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant="destructive" 
-            size="sm" 
             onClick={() => onDelete(user._id)}
             disabled={isCurrentUser}
+            className="group text-[var(--dashboard-danger)] hover:text-[var(--dashboard-danger)] hover:bg-[var(--dashboard-danger)]/10 hover:border-[var(--dashboard-danger)]/50 transition-all"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
+            Eliminar Usuario
           </Button>
         </div>
       </CardContent>
@@ -360,12 +408,9 @@ export default function UsersPage() {
         user={userData || { name: "Cargando...", email: "", role: "admin" }}
         tenant={tenantData || { name: "Cargando...", type: "hotel" }}
       >
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center space-y-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="text-muted-foreground">Cargando usuarios...</p>
-          </div>
-        </div>
+        <PermissionGuard permission="canManageUsers" route="/users">
+          <DashboardSkeleton />
+        </PermissionGuard>
       </MainLayout>
     )
   }
@@ -375,37 +420,47 @@ export default function UsersPage() {
       user={userData || { name: "Usuario", email: "", role: "admin" }}
       tenant={tenantData || { name: "Mi Hotel", type: "hotel" }}
     >
-      <div className="space-y-6">
-        <div className="flex items-center justify-between transition-none">
-          <div className="transition-none">
-            <h1 className="text-3xl font-bold tracking-tight transition-none">Usuarios</h1>
-            <p className="text-muted-foreground transition-none">
+      <PermissionGuard permission="canManageUsers" route="/users">
+      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        {/* Header with modern design */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                Usuarios
+              </h1>
+              <Sparkles className="h-6 w-6 text-primary animate-pulse" />
+            </div>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Gestiona los usuarios y permisos de tu organización
             </p>
           </div>
           
-          <Button className="gap-2" onClick={() => {
+          <Button className="group gap-2 hover:shadow-lg transition-all duration-300" onClick={() => {
             setEditingUser(undefined)
             setIsDialogOpen(true)
           }}>
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4 group-hover:rotate-90 transition-transform duration-300" />
             Nuevo Usuario
           </Button>
         </div>
 
-        <div className="flex items-center gap-4">
+        {/* Search and Filters */}
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Buscar por nombre o email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9"
+              className="pl-10 h-11 border-2 focus:border-primary/50 transition-colors"
             />
           </div>
-          
+        </div>
+        
+        <div className="flex gap-4 items-center flex-wrap">
           <Select value={filterRole} onValueChange={setFilterRole}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[180px] h-11 border-2">
               <SelectValue placeholder="Rol" />
             </SelectTrigger>
             <SelectContent>
@@ -417,7 +472,7 @@ export default function UsersPage() {
           </Select>
 
           <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[180px] h-11 border-2">
               <SelectValue placeholder="Estado" />
             </SelectTrigger>
             <SelectContent>
@@ -428,46 +483,68 @@ export default function UsersPage() {
           </Select>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="pb-2">
+        {/* Stats Cards with modern design */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-none shadow-md bg-gradient-to-br from-[var(--gradient-primary-from)]/10 to-[var(--gradient-primary-to)]/5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">Total Usuarios</CardTitle>
+              <div className="p-2.5 rounded-xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
+                <Users className="h-5 w-5" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.total}</div>
+              <div className="text-3xl font-bold tracking-tight">{stats.total}</div>
+              <p className="text-xs text-muted-foreground mt-1">usuarios registrados</p>
             </CardContent>
           </Card>
           
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-green-600">Activos</CardTitle>
+          <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-none shadow-md bg-gradient-to-br from-[var(--user-active)]/10 to-[var(--user-active)]/5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Activos</CardTitle>
+              <div className="p-2.5 rounded-xl bg-[var(--user-active-light)] text-[var(--user-active)] group-hover:scale-110 transition-transform">
+                <CheckCircle className="h-5 w-5" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.active}</div>
+              <div className="text-3xl font-bold tracking-tight text-[var(--user-active)]">{stats.active}</div>
+              <p className="text-xs text-muted-foreground mt-1">usuarios activos</p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-purple-600">Administradores</CardTitle>
+          <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-none shadow-md bg-gradient-to-br from-[var(--user-admin)]/10 to-[var(--user-admin)]/5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Administradores</CardTitle>
+              <div className="p-2.5 rounded-xl bg-[var(--user-admin-light)] text-[var(--user-admin)] group-hover:scale-110 transition-transform">
+                <Shield className="h-5 w-5" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.admins}</div>
+              <div className="text-3xl font-bold tracking-tight text-[var(--user-admin)]">{stats.admins}</div>
+              <p className="text-xs text-muted-foreground mt-1">con permisos completos</p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-blue-600">Staff</CardTitle>
+          <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-none shadow-md bg-gradient-to-br from-[var(--user-staff)]/10 to-[var(--user-staff)]/5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Staff</CardTitle>
+              <div className="p-2.5 rounded-xl bg-[var(--user-staff-light)] text-[var(--user-staff)] group-hover:scale-110 transition-transform">
+                <UserCog className="h-5 w-5" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.staff}</div>
+              <div className="text-3xl font-bold tracking-tight text-[var(--user-staff)]">{stats.staff}</div>
+              <p className="text-xs text-muted-foreground mt-1">personal operativo</p>
             </CardContent>
           </Card>
         </div>
 
+        {/* Users Grid */}
         {filteredUsers.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
             {filteredUsers.map((user) => (
               <UserCard 
                 key={user._id} 
@@ -495,23 +572,28 @@ export default function UsersPage() {
             ))}
           </div>
         ) : (
-          <Card className="p-12">
-            <div className="text-center space-y-4">
-              <User className="mx-auto h-12 w-12 text-muted-foreground" />
-              <div>
-                <h3 className="text-lg font-semibold mb-2">
-                  {searchTerm ? 'No se encontraron usuarios' : 'No tienes usuarios registrados'}
+          <Card className="border-none shadow-md p-16">
+            <div className="text-center space-y-6">
+              <div className="relative inline-block">
+                <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl" />
+                <Users className="relative mx-auto h-20 w-20 text-primary/40" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-2xl font-bold">
+                  {searchTerm || filterRole !== 'all' || filterStatus !== 'all' ? 'No se encontraron usuarios' : 'No tienes usuarios registrados'}
                 </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {searchTerm 
-                    ? 'Intenta con otros términos de búsqueda o ajusta los filtros' 
-                    : 'Comienza agregando tu primer usuario para gestionar el equipo'}
+                <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                  {searchTerm || filterRole !== 'all' || filterStatus !== 'all'
+                    ? 'Intenta ajustar los filtros de búsqueda o eliminar algunos criterios'
+                    : 'Comienza agregando tu primer usuario para gestionar el equipo y asignar permisos'}
                 </p>
               </div>
-              <Button onClick={() => setIsDialogOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Crear Primer Usuario
-              </Button>
+              {!searchTerm && filterRole === 'all' && filterStatus === 'all' && (
+                <Button className="group gap-2 hover:shadow-lg transition-all" size="lg" onClick={() => setIsDialogOpen(true)}>
+                  <Plus className="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" />
+                  Crear Primer Usuario
+                </Button>
+              )}
             </div>
           </Card>
         )}
@@ -568,6 +650,7 @@ export default function UsersPage() {
         onCancel={alertState.onCancel}
         showCancel={alertState.showCancel}
       />
+      </PermissionGuard>
     </MainLayout>
   )
 }

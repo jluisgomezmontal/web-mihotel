@@ -1,13 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { Plus, Search, Filter, User, Edit, Trash2, Star, Ban, Phone, Mail, CreditCard, MapPin, Calendar, UserCheck } from "lucide-react"
+import { Plus, Search, Filter, User, Edit, Trash2, Star, Ban, Phone, Mail, CreditCard, MapPin, Calendar, UserCheck, Sparkles, ArrowRight, TrendingUp, Award } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MainLayout } from "@/components/layout/main-layout"
-import { formatDate } from "@/lib/utils"
+import { DashboardSkeleton } from "@/components/ui/skeleton-loader"
+import { formatDate, cn } from "@/lib/utils"
 import { AuthService } from '@/lib/auth'
 import { API_BASE_URL } from '@/lib/api-config'
 import { useAlert } from '@/lib/use-alert'
@@ -55,24 +56,31 @@ function GuestCard({ guest, onEdit, onDelete, onToggleVIP, onReserve }: {
 }) {
   const loyaltyLevel = guest.totalStays >= 10 ? 'gold' : guest.totalStays >= 5 ? 'silver' : 'bronze'
   
+  const statusConfig = {
+    blacklisted: { barColor: 'bg-[var(--guest-blacklisted)]' },
+    vip: { barColor: 'bg-[var(--loyalty-vip)]' },
+    gold: { barColor: 'bg-[var(--loyalty-gold)]' },
+    silver: { barColor: 'bg-[var(--loyalty-silver)]' },
+    bronze: { barColor: 'bg-[var(--loyalty-bronze)]' }
+  }
+  
+  const currentStatus = guest.blacklisted ? 'blacklisted' : guest.vipStatus ? 'vip' : loyaltyLevel
+  
   return (
-    <Card className="group hover:shadow-lg hover:border-primary/20 transition-all duration-300 overflow-hidden">
-      {/* Status Indicator Bar */}
-      <div className={`h-1 w-full ${
-        guest.blacklisted ? 'bg-red-500' :
-        guest.vipStatus ? 'bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600' :
-        loyaltyLevel === 'gold' ? 'bg-gradient-to-r from-amber-400 to-amber-600' :
-        loyaltyLevel === 'silver' ? 'bg-gradient-to-r from-gray-300 to-gray-400' :
-        'bg-gradient-to-r from-orange-400 to-orange-600'
-      }`} />
+    <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-none shadow-md">
+      {/* Gradiente decorativo */}
+      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-primary/5 to-transparent rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
-      <CardHeader className="pb-4">
+      {/* Status Indicator Bar */}
+      <div className={cn("h-1.5 w-full transition-all duration-500", statusConfig[currentStatus].barColor)} />
+      
+      <CardHeader className="pb-4 relative">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 space-y-3">
             {/* Guest Name & Status */}
             <div className="flex items-center gap-2 flex-wrap">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <UserCheck className="h-5 w-5 text-primary" />
+              <div className="p-2 bg-gradient-to-br from-[var(--gradient-primary-from)] to-[var(--gradient-primary-to)] rounded-lg shadow-md group-hover:scale-110 transition-transform duration-300">
+                <UserCheck className="h-4 w-4 text-white" />
               </div>
               <div className="flex-1">
                 <CardTitle className="text-lg font-bold">
@@ -80,24 +88,26 @@ function GuestCard({ guest, onEdit, onDelete, onToggleVIP, onReserve }: {
                 </CardTitle>
                 <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                   {guest.vipStatus && (
-                    <Badge className="gap-1 bg-gradient-to-r from-yellow-500 to-yellow-600 border-0 text-white shadow-sm">
+                    <Badge className={cn("gap-1.5 text-xs font-semibold px-2.5 py-1 border", "text-[var(--loyalty-vip)]", "bg-[var(--loyalty-vip-light)]", "border-[var(--loyalty-vip)]/20")}>
                       <Star className="h-3 w-3 fill-current" />
                       VIP
                     </Badge>
                   )}
                   {guest.blacklisted && (
-                    <Badge variant="destructive" className="gap-1">
+                    <Badge className={cn("gap-1.5 text-xs font-semibold px-2.5 py-1 border", "text-[var(--guest-blacklisted)]", "bg-[var(--guest-blacklisted-light)]", "border-[var(--guest-blacklisted)]/20")}>
                       <Ban className="h-3 w-3" />
                       Bloqueado
                     </Badge>
                   )}
                   {!guest.vipStatus && !guest.blacklisted && (
-                    <Badge variant="outline" className={`gap-1 text-xs ${
-                      loyaltyLevel === 'gold' ? 'border-amber-500 text-amber-700 dark:text-amber-400' :
-                      loyaltyLevel === 'silver' ? 'border-gray-400 text-gray-700 dark:text-gray-400' :
-                      'border-orange-500 text-orange-700 dark:text-orange-400'
-                    }`}>
-                      {loyaltyLevel === 'gold' ? '🥇 Gold' : loyaltyLevel === 'silver' ? '🥈 Silver' : '🥉 Bronze'}
+                    <Badge className={cn(
+                      "gap-1.5 text-xs font-semibold px-2.5 py-1 border",
+                      loyaltyLevel === 'gold' ? "text-[var(--loyalty-gold)] bg-[var(--loyalty-gold-light)] border-[var(--loyalty-gold)]/20" :
+                      loyaltyLevel === 'silver' ? "text-[var(--loyalty-silver)] bg-[var(--loyalty-silver-light)] border-[var(--loyalty-silver)]/20" :
+                      "text-[var(--loyalty-bronze)] bg-[var(--loyalty-bronze-light)] border-[var(--loyalty-bronze)]/20"
+                    )}>
+                      <Award className="h-3 w-3" />
+                      {loyaltyLevel === 'gold' ? 'Gold' : loyaltyLevel === 'silver' ? 'Silver' : 'Bronze'}
                     </Badge>
                   )}
                 </div>
@@ -105,15 +115,19 @@ function GuestCard({ guest, onEdit, onDelete, onToggleVIP, onReserve }: {
             </div>
             
             {/* Contact Info */}
-            <div className="space-y-1.5 text-sm">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Phone className="h-4 w-4" />
-                <span className="font-medium text-foreground">{guest.phone}</span>
+            <div className="grid grid-cols-1 gap-2">
+              <div className="p-2.5 bg-gradient-to-br from-[var(--dashboard-info-light)] to-transparent border border-[var(--dashboard-info)]/20 rounded-lg hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-2">
+                  <Phone className="h-3.5 w-3.5 text-[var(--dashboard-info)]" />
+                  <span className="text-sm font-semibold truncate">{guest.phone}</span>
+                </div>
               </div>
               {guest.email && (
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Mail className="h-4 w-4" />
-                  <span className="font-medium text-foreground">{guest.email}</span>
+                <div className="p-2.5 bg-gradient-to-br from-[var(--dashboard-success-light)] to-transparent border border-[var(--dashboard-success)]/20 rounded-lg hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-3.5 w-3.5 text-[var(--dashboard-success)]" />
+                    <span className="text-sm font-semibold truncate">{guest.email}</span>
+                  </div>
                 </div>
               )}
             </div>
@@ -121,20 +135,26 @@ function GuestCard({ guest, onEdit, onDelete, onToggleVIP, onReserve }: {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 relative">
         {/* Additional Info */}
         {(guest.nationality || guest.emergencyContact?.name) && (
-          <div className="grid grid-cols-2 gap-3 p-3 bg-muted/50 rounded-lg text-sm">
+          <div className="grid grid-cols-2 gap-3 p-3 bg-gradient-to-br from-[var(--surface-elevated)] to-transparent border border-[var(--border-subtle)] rounded-xl">
             {guest.nationality && (
               <div className="space-y-1">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Nacionalidad</p>
-                <p className="font-semibold">{guest.nationality}</p>
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="h-3.5 w-3.5 text-[var(--dashboard-info)]" />
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Nacionalidad</p>
+                </div>
+                <p className="font-semibold text-sm">{guest.nationality}</p>
               </div>
             )}
             {guest.emergencyContact?.name && (
               <div className="space-y-1">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Emergencia</p>
-                <p className="font-semibold">{guest.emergencyContact.name}</p>
+                <div className="flex items-center gap-1.5">
+                  <Phone className="h-3.5 w-3.5 text-[var(--dashboard-danger)]" />
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Emergencia</p>
+                </div>
+                <p className="font-semibold text-sm">{guest.emergencyContact.name}</p>
                 {guest.emergencyContact.phone && (
                   <p className="text-xs text-muted-foreground">{guest.emergencyContact.phone}</p>
                 )}
@@ -145,17 +165,26 @@ function GuestCard({ guest, onEdit, onDelete, onToggleVIP, onReserve }: {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-3 gap-3">
-          <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg text-center space-y-1">
-            <p className="text-xs font-medium text-blue-900 dark:text-blue-100 uppercase tracking-wide">Estancias</p>
-            <p className="font-bold text-2xl text-blue-700 dark:text-blue-400">{guest.totalStays}</p>
+          <div className="p-3 bg-gradient-to-br from-[var(--dashboard-info-light)] to-transparent border border-[var(--dashboard-info)]/20 rounded-xl text-center space-y-1 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center gap-1">
+              <TrendingUp className="h-3.5 w-3.5 text-[var(--dashboard-info)]" />
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Estancias</p>
+            </div>
+            <p className="font-bold text-2xl text-[var(--dashboard-info)]">{guest.totalStays}</p>
           </div>
-          <div className="p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg text-center space-y-1">
-            <p className="text-xs font-medium text-green-900 dark:text-green-100 uppercase tracking-wide">Gastado</p>
-            <p className="font-bold text-lg text-green-700 dark:text-green-400">${guest.totalSpent.toLocaleString()}</p>
+          <div className="p-3 bg-gradient-to-br from-[var(--dashboard-success-light)] to-transparent border border-[var(--dashboard-success)]/20 rounded-xl text-center space-y-1 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center gap-1">
+              <CreditCard className="h-3.5 w-3.5 text-[var(--dashboard-success)]" />
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Gastado</p>
+            </div>
+            <p className="font-bold text-lg text-[var(--dashboard-success)]">${guest.totalSpent.toLocaleString()}</p>
           </div>
-          <div className="p-3 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-lg text-center space-y-1">
-            <p className="text-xs font-medium text-purple-900 dark:text-purple-100 uppercase tracking-wide">Puntos</p>
-            <p className="font-bold text-2xl text-purple-700 dark:text-purple-400">{guest.loyaltyPoints}</p>
+          <div className="p-3 bg-gradient-to-br from-[var(--loyalty-vip-light)] to-transparent border border-[var(--loyalty-vip)]/20 rounded-xl text-center space-y-1 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center gap-1">
+              <Award className="h-3.5 w-3.5 text-[var(--loyalty-vip)]" />
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Puntos</p>
+            </div>
+            <p className="font-bold text-2xl text-[var(--loyalty-vip)]">{guest.loyaltyPoints}</p>
           </div>
         </div>
 
@@ -165,37 +194,41 @@ function GuestCard({ guest, onEdit, onDelete, onToggleVIP, onReserve }: {
             variant="default" 
             size="default" 
             onClick={() => onReserve(guest._id)}
-            className="w-full font-semibold"
+            className="group w-full font-semibold hover:shadow-lg transition-all"
           >
-            <Calendar className="h-4 w-4 mr-2" />
+            <Calendar className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
             Crear Reserva
+            <ArrowRight className="ml-auto h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
           </Button>
           <div className="flex gap-2">
             <Button 
               variant="outline" 
               size="sm" 
               onClick={() => onEdit(guest)}
-              className="flex-1 font-semibold"
+              className="group flex-1 font-semibold hover:border-primary/50 transition-all"
             >
-              <Edit className="h-4 w-4 mr-1" />
+              <Edit className="h-4 w-4 mr-1 group-hover:scale-110 transition-transform" />
               Editar
             </Button>
             <Button 
               variant={guest.vipStatus ? "default" : "outline"}
               size="sm" 
               onClick={() => onToggleVIP(guest._id, guest.vipStatus)}
-              className={`flex-1 font-semibold ${guest.vipStatus ? 'bg-yellow-500 hover:bg-yellow-600' : ''}`}
+              className={cn(
+                "group flex-1 font-semibold transition-all",
+                guest.vipStatus ? "bg-[var(--loyalty-vip)] hover:bg-[var(--loyalty-vip)]/90 hover:shadow-lg" : "hover:border-[var(--loyalty-vip)]/50"
+              )}
             >
-              <Star className={`h-4 w-4 mr-1 ${guest.vipStatus ? 'fill-current' : ''}`} />
-              {guest.vipStatus ? 'VIP' : 'Hacer VIP'}
+              <Star className={cn("h-4 w-4 mr-1 group-hover:scale-110 transition-transform", guest.vipStatus && "fill-current")} />
+              {guest.vipStatus ? 'VIP' : 'VIP'}
             </Button>
             <Button 
               variant="outline" 
               size="sm" 
               onClick={() => onDelete(guest._id)}
-              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              className="group text-[var(--dashboard-danger)] hover:text-[var(--dashboard-danger)] hover:bg-[var(--dashboard-danger)]/10 hover:border-[var(--dashboard-danger)]/50 transition-all"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-4 w-4 group-hover:scale-110 transition-transform" />
             </Button>
           </div>
         </div>
@@ -410,12 +443,7 @@ export default function GuestsPage() {
         user={userData || { name: "Cargando...", email: "", role: "admin" }}
         tenant={tenantData || { name: "Cargando...", type: "hotel" }}
       >
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center space-y-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="text-muted-foreground">Cargando huéspedes...</p>
-          </div>
-        </div>
+        <DashboardSkeleton />
       </MainLayout>
     )
   }
@@ -425,37 +453,47 @@ export default function GuestsPage() {
       user={userData || { name: "Usuario", email: "", role: "admin" }}
       tenant={tenantData || { name: "Mi Hotel", type: "hotel" }}
     >
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight" style={{ transition: 'none', animation: 'none' }}>Huéspedes</h1>
-            <p className="text-muted-foreground" style={{ transition: 'none', animation: 'none' }}>
+      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        {/* Header with modern design */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                Huéspedes
+              </h1>
+              <Sparkles className="h-6 w-6 text-primary animate-pulse" />
+            </div>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Gestiona la información de tus huéspedes y su historial
             </p>
           </div>
           
-          <Button className="gap-2" onClick={() => {
-            setEditingGuest(undefined)
-            setIsDialogOpen(true)
-          }}>
-            <Plus className="h-4 w-4" />
+          <Button 
+            className="group gap-2 hover:shadow-lg transition-all duration-300" 
+            onClick={() => {
+              setEditingGuest(undefined)
+              setIsDialogOpen(true)
+            }}
+          >
+            <Plus className="h-4 w-4 group-hover:rotate-90 transition-transform duration-300" />
             Nuevo Huésped
           </Button>
         </div>
 
-        <div className="flex items-center gap-4">
+        {/* Search and Filters */}
+        <div className="flex items-center gap-4 flex-wrap">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar por nombre, email, teléfono o identificación..."
+              placeholder="Buscar por nombre, email o teléfono..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9"
+              className="pl-9 h-11 border-2 focus:border-primary/50 transition-colors"
             />
           </div>
           
           <Select value={filterVIP} onValueChange={setFilterVIP}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[180px] h-11 border-2">
               <SelectValue placeholder="Tipo" />
             </SelectTrigger>
             <SelectContent>
@@ -465,52 +503,74 @@ export default function GuestsPage() {
             </SelectContent>
           </Select>
 
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2 h-11 border-2">
             <Filter className="h-4 w-4" />
             Más Filtros
           </Button>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="pb-2">
+        {/* Stats Cards with modern design */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-none shadow-md bg-gradient-to-br from-[var(--gradient-primary-from)]/10 to-[var(--gradient-primary-to)]/5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">Total Huéspedes</CardTitle>
+              <div className="p-2.5 rounded-xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
+                <User className="h-5 w-5" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.total}</div>
+              <div className="text-3xl font-bold tracking-tight">{stats.total}</div>
+              <p className="text-xs text-muted-foreground mt-1">registrados en total</p>
             </CardContent>
           </Card>
           
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-yellow-600">VIP</CardTitle>
+          <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-none shadow-md bg-gradient-to-br from-[var(--loyalty-vip)]/10 to-[var(--loyalty-vip)]/5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">VIP</CardTitle>
+              <div className="p-2.5 rounded-xl bg-[var(--loyalty-vip-light)] text-[var(--loyalty-vip)] group-hover:scale-110 transition-transform">
+                <Star className="h-5 w-5 fill-current" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.vip}</div>
+              <div className="text-3xl font-bold tracking-tight text-[var(--loyalty-vip)]">{stats.vip}</div>
+              <p className="text-xs text-muted-foreground mt-1">huéspedes premium</p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-blue-600">Estancias Totales</CardTitle>
+          <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-none shadow-md bg-gradient-to-br from-[var(--dashboard-info)]/10 to-[var(--dashboard-info)]/5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Estancias Totales</CardTitle>
+              <div className="p-2.5 rounded-xl bg-[var(--dashboard-info-light)] text-[var(--dashboard-info)] group-hover:scale-110 transition-transform">
+                <TrendingUp className="h-5 w-5" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalStays}</div>
+              <div className="text-3xl font-bold tracking-tight text-[var(--dashboard-info)]">{stats.totalStays}</div>
+              <p className="text-xs text-muted-foreground mt-1">visitas acumuladas</p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-green-600">Ingresos Totales</CardTitle>
+          <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-none shadow-md bg-gradient-to-br from-[var(--dashboard-success)]/10 to-[var(--dashboard-success)]/5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Ingresos Totales</CardTitle>
+              <div className="p-2.5 rounded-xl bg-[var(--dashboard-success-light)] text-[var(--dashboard-success)] group-hover:scale-110 transition-transform">
+                <CreditCard className="h-5 w-5" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${stats.totalRevenue.toLocaleString()}</div>
+              <div className="text-3xl font-bold tracking-tight text-[var(--dashboard-success)]">${stats.totalRevenue.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground mt-1">generados por huéspedes</p>
             </CardContent>
           </Card>
         </div>
 
+        {/* Guests Grid */}
         {filteredGuests.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 max-w-[1600px] mx-auto">
+          <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
             {filteredGuests.map((guest) => (
               <GuestCard 
                 key={guest._id} 
@@ -526,21 +586,28 @@ export default function GuestsPage() {
             ))}
           </div>
         ) : (
-          <Card className="p-12">
-            <div className="text-center space-y-4">
-              <User className="mx-auto h-12 w-12 text-muted-foreground" />
-              <div>
-                <h3 className="text-lg font-semibold mb-2">
-                  {searchTerm ? 'No se encontraron huéspedes' : 'No tienes huéspedes registrados'}
+          <Card className="border-none shadow-md p-16">
+            <div className="text-center space-y-6">
+              <div className="relative inline-block">
+                <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl" />
+                <User className="relative mx-auto h-20 w-20 text-primary/40" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-2xl font-bold">
+                  {searchTerm || filterVIP !== 'all' ? 'No se encontraron huéspedes' : 'No tienes huéspedes registrados'}
                 </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {searchTerm 
-                    ? 'Intenta con otros términos de búsqueda o ajusta los filtros' 
-                    : 'Comienza agregando tu primer huésped para gestionar reservas'}
+                <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                  {searchTerm || filterVIP !== 'all'
+                    ? 'Intenta ajustar los filtros de búsqueda o eliminar algunos criterios'
+                    : 'Comienza agregando tu primer huésped para gestionar reservas y construir tu base de clientes'}
                 </p>
               </div>
-              <Button onClick={() => setIsDialogOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" />
+              <Button 
+                onClick={() => setIsDialogOpen(true)}
+                className="group gap-2 hover:shadow-lg transition-all"
+                size="lg"
+              >
+                <Plus className="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" />
                 Crear Primer Huésped
               </Button>
             </div>
