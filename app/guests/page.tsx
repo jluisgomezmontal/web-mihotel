@@ -138,7 +138,7 @@ function GuestCard({ guest, onEdit, onDelete, onToggleVIP, onReserve }: {
       <CardContent className="space-y-4 relative">
         {/* Additional Info */}
         {(guest.nationality || guest.emergencyContact?.name) && (
-          <div className="grid grid-cols-2 gap-3 p-3 bg-gradient-to-br from-[var(--surface-elevated)] to-transparent border border-[var(--border-subtle)] rounded-xl">
+          <div className="grid grid-cols-2 gap-3 p-3 bg-gradient-to-br from-[var(--surface-elevated)] to-transparent border border-[var(--border-subtle)] rounded-xl min-h-25">
             {guest.nationality && (
               <div className="space-y-1">
                 <div className="flex items-center gap-1.5">
@@ -164,7 +164,7 @@ function GuestCard({ guest, onEdit, onDelete, onToggleVIP, onReserve }: {
         )}
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <div className="p-3 bg-gradient-to-br from-[var(--dashboard-info-light)] to-transparent border border-[var(--dashboard-info)]/20 rounded-xl text-center space-y-1 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-center gap-1">
               <TrendingUp className="h-3.5 w-3.5 text-[var(--dashboard-info)]" />
@@ -178,13 +178,6 @@ function GuestCard({ guest, onEdit, onDelete, onToggleVIP, onReserve }: {
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Gastado</p>
             </div>
             <p className="font-bold text-lg text-[var(--dashboard-success)]">${guest.totalSpent.toLocaleString()}</p>
-          </div>
-          <div className="p-3 bg-gradient-to-br from-[var(--loyalty-vip-light)] to-transparent border border-[var(--loyalty-vip)]/20 rounded-xl text-center space-y-1 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-center gap-1">
-              <Award className="h-3.5 w-3.5 text-[var(--loyalty-vip)]" />
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Puntos</p>
-            </div>
-            <p className="font-bold text-2xl text-[var(--loyalty-vip)]">{guest.loyaltyPoints}</p>
           </div>
         </div>
 

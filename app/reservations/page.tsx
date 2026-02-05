@@ -260,13 +260,13 @@ function ReservationCard({
                 </DropdownMenuItem>
               )}
               {['pending', 'confirmed'].includes(reservation.status) && (
-                <DropdownMenuItem onClick={handleCancel} className="text-destructive">
+                <DropdownMenuItem onClick={handleCancel} className="text-red-300">
                   <XCircle className="mr-2 h-4 w-4" />
                   Cancelar Reserva
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onDelete(reservation.id)} className="text-destructive">
+              <DropdownMenuItem onClick={() => onDelete(reservation.id)} className="text-red-500">
                 <Trash2 className="mr-2 h-4 w-4" />
                 Eliminar
               </DropdownMenuItem>

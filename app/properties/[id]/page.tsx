@@ -567,7 +567,7 @@ export default function PropertyDetailPage() {
                       <Button 
                         variant="outline"
                         size="sm" 
-                        className="flex-1 font-semibold text-destructive hover:text-destructive hover:bg-destructive/10"
+                        className="flex-1 font-semibold text-red-500 hover:text-destructive hover:bg-destructive/10"
                         onClick={() => handleDeleteRoom(room)}
                       >
                         <Trash2 className="mr-2 h-4 w-4" />

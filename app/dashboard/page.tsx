@@ -16,7 +16,9 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Sparkles,
-  Activity
+  Activity,
+  Plus,
+  UserPlus
 } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -27,6 +29,8 @@ import { useDashboard } from "@/contexts/DashboardContext"
 import { API_BASE_URL } from "@/lib/api-config"
 import { AuthService } from "@/lib/auth"
 import { cn } from "@/lib/utils"
+import { ReservationFormDialog } from "@/components/forms/reservation-form-dialog"
+import { GuestFormDialog } from "@/components/forms/guest-form-dialog"
 
 interface KPICardProps {
   title: string
@@ -224,9 +228,11 @@ function ReservationItem({ guest, room, checkIn, checkOut, status, nights, amoun
 }
 
 export default function DashboardPage() {
-  const { properties, reservations, rooms, userData, tenantData, isLoading, error, refreshAll } = useDashboard()
+  const { properties, reservations, rooms, guests, userData, tenantData, isLoading, error, refreshAll } = useDashboard()
   const [dashboardMetrics, setDashboardMetrics] = React.useState<any>(null)
   const [metricsLoading, setMetricsLoading] = React.useState(true)
+  const [reservationDialogOpen, setReservationDialogOpen] = React.useState(false)
+  const [guestDialogOpen, setGuestDialogOpen] = React.useState(false)
 
   // Fetch dashboard metrics from backend
   const fetchDashboardMetrics = React.useCallback(async () => {
@@ -409,36 +415,67 @@ export default function DashboardPage() {
     >
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                Dashboard
-              </h1>
-              <Sparkles className="h-6 w-6 text-primary animate-pulse" />
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl sm:text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                  Dashboard
+                </h1>
+                <Sparkles className="h-6 w-6 text-primary animate-pulse" />
+              </div>
+              <p className="text-sm sm:text-base text-muted-foreground">
+                {new Date().toLocaleDateString('es-ES', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </p>
             </div>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              {new Date().toLocaleDateString('es-ES', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-            </p>
+            <Button
+              variant="outline"
+              size="default"
+              onClick={handleRefresh}
+              disabled={metricsLoading}
+              className="group hover:border-primary/50 transition-all duration-300"
+            >
+              <RefreshCw className={cn(
+                "mr-2 h-4 w-4 transition-transform duration-300",
+                metricsLoading ? 'animate-spin' : 'group-hover:rotate-180'
+              )} />
+              Actualizar
+            </Button>
           </div>
-          <Button
-            variant="outline"
-            size="default"
-            onClick={handleRefresh}
-            disabled={metricsLoading}
-            className="group hover:border-primary/50 transition-all duration-300"
-          >
-            <RefreshCw className={cn(
-              "mr-2 h-4 w-4 transition-transform duration-300",
-              metricsLoading ? 'animate-spin' : 'group-hover:rotate-180'
-            )} />
-            Actualizar
-          </Button>
+
+          {/* Quick Actions - Header Area */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={() => setReservationDialogOpen(true)}
+              disabled={isLoading}
+              className="group relative flex items-center justify-center gap-2 px-6 py-3 rounded-xl border-2 border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 hover:from-primary/20 hover:to-primary/10 hover:border-primary/40 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/10 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <Plus className={cn(
+                "h-5 w-5 text-primary transition-transform duration-300",
+                isLoading ? 'animate-spin' : 'group-hover:rotate-90'
+              )} />
+              <span className="font-semibold text-foreground group-hover:text-primary transition-colors">Nueva Reserva</span>
+            </button>
+
+            <button
+              onClick={() => setGuestDialogOpen(true)}
+              disabled={isLoading}
+              className="group relative flex items-center justify-center gap-2 px-6 py-3 rounded-xl border-2 border-[var(--dashboard-info)]/20 bg-gradient-to-br from-[var(--dashboard-info)]/10 to-[var(--dashboard-info)]/5 hover:from-[var(--dashboard-info)]/20 hover:to-[var(--dashboard-info)]/10 hover:border-[var(--dashboard-info)]/40 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/10 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <Plus className={cn(
+                "h-5 w-5 text-[var(--dashboard-info)] transition-transform duration-300",
+                isLoading ? 'animate-spin' : 'group-hover:rotate-90'
+              )} />
+              <span className="font-semibold text-foreground group-hover:text-[var(--dashboard-info)] transition-colors">Registrar Huésped</span>
+            </button>
+          </div>
         </div>
 
         {/* KPI Cards */}
@@ -564,92 +601,6 @@ export default function DashboardPage() {
 
           {/* Quick Stats & Actions */}
           <div className="space-y-4 lg:space-y-6">
-            {/* Room Status */}
-            <Card className="border-none shadow-md hover:shadow-lg transition-shadow duration-300">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-bold flex items-center gap-2">
-                  <Bed className="h-5 w-5 text-primary" />
-                  Estado de Habitaciones
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-[var(--dashboard-danger-light)] border border-[var(--dashboard-danger)]/20 transition-all hover:shadow-sm">
-                    <span className="text-sm font-medium">Ocupadas</span>
-                    <Badge variant="outline" className="font-bold text-[var(--dashboard-danger)] bg-background border-[var(--dashboard-danger)]/30">
-                      {kpis.occupiedRooms}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-[var(--dashboard-success-light)] border border-[var(--dashboard-success)]/20 transition-all hover:shadow-sm">
-                    <span className="text-sm font-medium">Disponibles</span>
-                    <Badge variant="outline" className="font-bold text-[var(--dashboard-success)] bg-background border-[var(--dashboard-success)]/30">
-                      {kpis.availableRooms}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-[var(--dashboard-warning-light)] border border-[var(--dashboard-warning)]/20 transition-all hover:shadow-sm">
-                    <span className="text-sm font-medium">En Limpieza</span>
-                    <Badge variant="outline" className="font-bold text-[var(--dashboard-warning)] bg-background border-[var(--dashboard-warning)]/30">
-                      {kpis.cleaningRooms}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border transition-all hover:shadow-sm">
-                    <span className="text-sm font-medium">Mantenimiento</span>
-                    <Badge variant="outline" className="font-bold">
-                      {kpis.maintenanceRooms}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 mt-4">
-                    <span className="font-semibold">Total</span>
-                    <Badge className="font-bold bg-primary text-primary-foreground">
-                      {kpis.totalRooms}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-[var(--dashboard-info)]/10 to-[var(--dashboard-info)]/5 border border-[var(--dashboard-info)]/20">
-                    <span className="font-semibold">Ocupación</span>
-                    <Badge className="font-bold bg-[var(--dashboard-info)] text-white">
-                      {kpis.occupancyRate}%
-                    </Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            <Card className="border-none shadow-md hover:shadow-lg transition-shadow duration-300">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-bold flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  Acciones Rápidas
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Button 
-                  className="w-full justify-start group hover:bg-primary hover:text-primary-foreground transition-all duration-300" 
-                  variant="outline"
-                  onClick={() => window.location.href = '/reservations'}
-                >
-                  <Calendar className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
-                  Nueva Reserva
-                </Button>
-                <Button 
-                  className="w-full justify-start group hover:bg-primary hover:text-primary-foreground transition-all duration-300" 
-                  variant="outline"
-                  onClick={() => window.location.href = '/guests'}
-                >
-                  <Users className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
-                  Registrar Huésped
-                </Button>
-                <Button 
-                  className="w-full justify-start group hover:bg-primary hover:text-primary-foreground transition-all duration-300" 
-                  variant="outline"
-                  onClick={() => window.location.href = '/rooms'}
-                >
-                  <Bed className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
-                  Gestionar Habitaciones
-                </Button>
-              </CardContent>
-            </Card>
-
             {/* Revenue Summary */}
             <Card className="border-none shadow-md hover:shadow-lg transition-shadow duration-300">
               <CardHeader className="pb-4">
@@ -692,6 +643,29 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <ReservationFormDialog
+        open={reservationDialogOpen}
+        onOpenChange={setReservationDialogOpen}
+        onSuccess={() => {
+          setReservationDialogOpen(false)
+          refreshAll()
+          fetchDashboardMetrics()
+        }}
+        properties={properties}
+        rooms={rooms}
+        guests={guests}
+      />
+
+      <GuestFormDialog
+        open={guestDialogOpen}
+        onOpenChange={setGuestDialogOpen}
+        onSuccess={() => {
+          setGuestDialogOpen(false)
+          refreshAll()
+        }}
+      />
     </MainLayout>
   )
 }

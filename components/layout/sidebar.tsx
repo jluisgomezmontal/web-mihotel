@@ -10,24 +10,22 @@ import type { User } from "@/types"
 import {
   Building2,
   Calendar,
-  ChevronDown,
   CreditCard,
   Home,
   Hotel,
-  Menu,
   Settings,
   Users,
   Bed,
   UserCheck,
   BarChart3,
-  LogOut,
-  Moon,
-  Sun,
   X,
-  ChevronLeft
+  ChevronLeft,
+  Sparkles,
+  Crown
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { useRouter } from "next/navigation"
 
 interface SidebarProps {
   isCollapsed: boolean
@@ -43,20 +41,6 @@ const menuItems = [
     href: "/dashboard",
     badge: null,
     requiresPermission: false
-  },
-  {
-    title: "Propiedades",
-    icon: Building2,
-    href: "/properties",
-    badge: null,
-    requiresPermission: true
-  },
-  {
-    title: "Habitaciones",
-    icon: Bed,
-    href: "/rooms",
-    badge: null,
-    requiresPermission: true
   },
   {
     title: "Reservas",
@@ -94,6 +78,20 @@ const menuItems = [
     requiresPermission: true
   },
   {
+    title: "Habitaciones",
+    icon: Bed,
+    href: "/rooms",
+    badge: null,
+    requiresPermission: true
+  },
+  {
+    title: "Propiedades",
+    icon: Building2,
+    href: "/properties",
+    badge: null,
+    requiresPermission: true
+  },
+  {
     title: "Configuración",
     icon: Settings,
     href: "/settings",
@@ -104,7 +102,7 @@ const menuItems = [
 
 export function Sidebar({ isCollapsed, onToggle, isMobileMenuOpen, setIsMobileMenuOpen }: SidebarProps) {
   const pathname = usePathname()
-
+  
   return (
     <>
       {/* Mobile overlay */}
@@ -152,12 +150,55 @@ interface SidebarContentProps {
   isMobile: boolean
 }
 
+interface UserProfile {
+  avatar?: string
+  phone?: string
+  timezone?: string
+}
+
 function SidebarContent({ isCollapsed, onToggle, pathname, isMobile }: SidebarContentProps) {
+  const router = useRouter()
   const [user, setUser] = React.useState<User | null>(null)
+  const [logoutDialogOpen, setLogoutDialogOpen] = React.useState(false)
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false)
 
   React.useEffect(() => {
     setUser(AuthService.getUser())
   }, [])
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true)
+    try {
+      AuthService.logout()
+      await new Promise(resolve => setTimeout(resolve, 500))
+      window.location.href = '/auth/login'
+    } catch (error) {
+      console.error('Logout error:', error)
+      setIsLoggingOut(false)
+    }
+  }
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2)
+  }
+
+  const getRoleBadge = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return { label: 'Admin', color: 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground', icon: Crown }
+      case 'staff':
+        return { label: 'Personal', color: 'bg-gradient-to-r from-[var(--dashboard-info)] to-[var(--dashboard-info)]/80 text-white', icon: Users }
+      case 'cleaning':
+        return { label: 'Limpieza', color: 'bg-gradient-to-r from-[var(--dashboard-warning)] to-[var(--dashboard-warning)]/80 text-white', icon: Sparkles }
+      default:
+        return { label: role, color: 'bg-muted text-muted-foreground', icon: Users }
+    }
+  }
 
   // Filter menu items based on user permissions
   const accessibleMenuItems = React.useMemo(() => {
@@ -175,17 +216,18 @@ function SidebarContent({ isCollapsed, onToggle, pathname, isMobile }: SidebarCo
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b border-sidebar-border">
+      <div className="flex items-center justify-between p-3 border-b border-sidebar-border bg-gradient-to-r from-sidebar to-sidebar/95">
         <div className={cn(
           "flex items-center gap-3 transition-all duration-200",
           isCollapsed && !isMobile && "justify-center"
         )}>
-          <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl shadow-lg">
+          <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-110 duration-300">
             <Hotel className="h-6 w-6 text-white" />
           </div>
           {(!isCollapsed || isMobile) && (
             <div className="flex flex-col">
-              <span className="text-xl font-bold text-sidebar-foreground tracking-tight">MiHotel</span>
+              <span className="text-xl font-bold text-sidebar-foreground tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">MiHotel</span>
+              <span className="text-xs text-muted-foreground">Sistema de Gestión</span>
             </div>
           )}
         </div>
@@ -195,7 +237,7 @@ function SidebarContent({ isCollapsed, onToggle, pathname, isMobile }: SidebarCo
             variant="ghost"
             size="icon"
             onClick={onToggle}
-            className="h-8 w-8 text-sidebar-foreground/70 hover:text-sidebar-foreground"
+            className="h-8 w-8 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all hover:scale-110"
           >
             {isMobile ? <X className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </Button>
@@ -203,7 +245,7 @@ function SidebarContent({ isCollapsed, onToggle, pathname, isMobile }: SidebarCo
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
         {accessibleMenuItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
@@ -213,19 +255,23 @@ function SidebarContent({ isCollapsed, onToggle, pathname, isMobile }: SidebarCo
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                "group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:translate-x-1 hover:shadow-sm",
                 isActive 
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm" 
+                  ? "bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-md scale-105" 
                   : "text-sidebar-foreground/70 hover:text-sidebar-foreground",
                 isCollapsed && !isMobile && "justify-center px-2"
               )}
             >
-              <Icon className={cn("h-5 w-5 flex-shrink-0", isCollapsed && !isMobile && "h-6 w-6")} />
+              <Icon className={cn(
+                "h-5 w-5 flex-shrink-0 transition-transform duration-300",
+                isCollapsed && !isMobile && "h-6 w-6",
+                isActive ? "scale-110" : "group-hover:scale-110"
+              )} />
               {(!isCollapsed || isMobile) && (
                 <>
                   <span className="flex-1">{item.title}</span>
                   {item.badge && (
-                    <Badge variant="secondary" className="h-5 px-1.5 text-xs">
+                    <Badge variant="secondary" className="h-5 px-1.5 text-xs animate-pulse">
                       {item.badge}
                     </Badge>
                   )}

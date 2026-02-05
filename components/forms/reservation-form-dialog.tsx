@@ -113,7 +113,7 @@ export function ReservationFormDialog({
   const { alertState, hideAlert, showError: showAlertError } = useAlert()
   const isEditMode = !!reservation
   
-  const getInitialFormData = () => reservation ? {
+  const getInitialFormData = React.useCallback(() => reservation ? {
     propertyId: reservation.propertyId,
     roomId: reservation.roomId,
     guestId: reservation.guestId,
@@ -137,9 +137,9 @@ export function ReservationFormDialog({
     specialRequests: "",
     notes: "",
     initialStatus: "pending" as 'pending' | 'checked_in',
-  }
+  }, [reservation, properties, preselectedGuestId])
 
-  const [formData, setFormData] = React.useState(getInitialFormData())
+  const [formData, setFormData] = React.useState(getInitialFormData)
 
   React.useEffect(() => {
     if (open) {
@@ -154,7 +154,7 @@ export function ReservationFormDialog({
         preselectedGuestId
       })
     }
-  }, [open, reservation, preselectedGuestId])
+  }, [open, getInitialFormData, properties.length, rooms.length, guests.length, preselectedGuestId])
 
   React.useEffect(() => {
     if (formData.propertyId) {
