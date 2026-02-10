@@ -64,13 +64,6 @@ const menuItems = [
     requiresPermission: true
   },
   {
-    title: "Usuarios",
-    icon: Users,
-    href: "/users",
-    badge: null,
-    requiresPermission: true
-  },
-  {
     title: "Reportes",
     icon: BarChart3,
     href: "/reports",
@@ -92,6 +85,13 @@ const menuItems = [
     requiresPermission: true
   },
   {
+    title: "Usuarios",
+    icon: Users,
+    href: "/users",
+    badge: null,
+    requiresPermission: true
+  },
+  {
     title: "Configuración",
     icon: Settings,
     href: "/settings",
@@ -108,8 +108,8 @@ export function Sidebar({ isCollapsed, onToggle, isMobileMenuOpen, setIsMobileMe
       {/* Mobile overlay */}
       {isMobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
+        className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
+        onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
