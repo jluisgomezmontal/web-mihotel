@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils"
 import { ReservationFormDialog } from "@/components/forms/reservation-form-dialog"
 import { GuestFormDialog } from "@/components/forms/guest-form-dialog"
 
+import { HeroSection } from "./components/HeroSection"
 import { KPICard } from "./components/KPICard"
 import { QuickActions } from "./components/QuickActions"
 import { TodaysReservations } from "./components/TodaysReservations"
@@ -51,45 +52,33 @@ export default function DashboardPage() {
       tenant={tenantData || { name: "Cargando...", type: "hotel" }}
     >
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        {/* Header */}
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-3">
-                <h1 className="text-3xl sm:text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                  Dashboard
-                </h1>
-                <Sparkles className="h-6 w-6 text-primary animate-pulse" />
-              </div>
-              <p className="text-sm sm:text-base text-muted-foreground">
-                {new Date().toLocaleDateString('es-ES', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              size="default"
-              onClick={handleRefresh}
-              disabled={metricsLoading}
-              className="group hover:border-primary/50 transition-all duration-300"
-            >
-              <RefreshCw className={cn(
-                "mr-2 h-4 w-4 transition-transform duration-300",
-                metricsLoading ? 'animate-spin' : 'group-hover:rotate-180'
-              )} />
-              Actualizar
-            </Button>
-          </div>
+        {/* Hero Section */}
+        <HeroSection
+          userName={userData?.name || "Usuario"}
+          tenantName={tenantData?.name || "Mi Hotel"}
+        />
 
+        {/* Quick Actions & Refresh */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <QuickActions
             onNewReservation={() => setReservationDialogOpen(true)}
             onNewGuest={() => setGuestDialogOpen(true)}
             isLoading={isLoading}
           />
+          
+          <Button
+            variant="outline"
+            size="default"
+            onClick={handleRefresh}
+            disabled={metricsLoading}
+            className="group hover:border-primary/50 transition-all duration-300"
+          >
+            <RefreshCw className={cn(
+              "mr-2 h-4 w-4 transition-transform duration-300",
+              metricsLoading ? 'animate-spin' : 'group-hover:rotate-180'
+            )} />
+            Actualizar
+          </Button>
         </div>
 
         {/* KPI Cards */}
