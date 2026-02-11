@@ -1,10 +1,10 @@
-import { Bed, CheckCircle2, AlertCircle, Wrench } from "lucide-react"
+import { Bed, CheckCircle2, AlertCircle, Wrench, Loader2 } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import type { RoomStats as RoomStatsType } from "../types"
 
 export function RoomStats({ stats }: { stats: RoomStatsType }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
       <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-none shadow-md bg-gradient-to-br from-[var(--gradient-primary-from)]/10 to-[var(--gradient-primary-to)]/5">
         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
@@ -44,6 +44,22 @@ export function RoomStats({ stats }: { stats: RoomStatsType }) {
         <CardContent>
           <div className="text-3xl font-bold tracking-tight text-[var(--room-occupied)]">{stats.occupied}</div>
           <p className="text-xs text-muted-foreground mt-1">actualmente en uso</p>
+        </CardContent>
+      </Card>
+
+      <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-none shadow-md bg-gradient-to-br from-[var(--room-cleaning)]/10 to-[var(--room-cleaning)]/5">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+          <CardTitle className="text-sm font-medium text-muted-foreground">En Limpieza</CardTitle>
+          <div className="p-2.5 rounded-xl bg-[var(--room-cleaning-light)] text-[var(--room-cleaning)] group-hover:scale-110 transition-transform">
+            <Loader2 className="h-5 w-5 animate-spin" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="text-3xl font-bold tracking-tight text-[var(--room-cleaning)]">{stats.cleaning}</div>
+          <p className="text-xs text-muted-foreground mt-1">
+            {stats.cleaning === 0 ? 'ninguna pendiente' : stats.cleaning === 1 ? 'pendiente de limpieza' : 'pendientes de limpieza'}
+          </p>
         </CardContent>
       </Card>
 

@@ -129,8 +129,21 @@ export function ReservationFormDialog({
     propertyId: properties.length === 1 ? properties[0]._id : "",
     roomId: "",
     guestId: preselectedGuestId || "",
-    checkInDate: new Date().toISOString().split('T')[0],
-    checkOutDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+    checkInDate: (() => {
+      const today = new Date()
+      const year = today.getFullYear()
+      const month = String(today.getMonth() + 1).padStart(2, '0')
+      const day = String(today.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    })(),
+    checkOutDate: (() => {
+      const tomorrow = new Date()
+      tomorrow.setDate(tomorrow.getDate() + 1)
+      const year = tomorrow.getFullYear()
+      const month = String(tomorrow.getMonth() + 1).padStart(2, '0')
+      const day = String(tomorrow.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    })(),
     adults: 2,
     children: 0,
     source: "direct",

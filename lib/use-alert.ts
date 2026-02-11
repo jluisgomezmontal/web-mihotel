@@ -43,10 +43,13 @@ export const useAlert = () => {
         description,
         confirmText: 'Aceptar',
         showCancel: false,
-        onConfirm: () => resolve(),
+        onConfirm: () => {
+          hideAlert()
+          resolve()
+        },
       })
     })
-  }, [showAlert])
+  }, [showAlert, hideAlert])
 
   const showError = useCallback((title: string, description?: string) => {
     return new Promise<void>((resolve) => {
@@ -56,10 +59,13 @@ export const useAlert = () => {
         description,
         confirmText: 'Aceptar',
         showCancel: false,
-        onConfirm: () => resolve(),
+        onConfirm: () => {
+          hideAlert()
+          resolve()
+        },
       })
     })
-  }, [showAlert])
+  }, [showAlert, hideAlert])
 
   const showWarning = useCallback((title: string, description?: string) => {
     return new Promise<void>((resolve) => {
@@ -106,11 +112,17 @@ export const useAlert = () => {
         confirmText: confirmButtonText,
         cancelText: cancelButtonText,
         showCancel: true,
-        onConfirm: () => resolve(true),
-        onCancel: () => resolve(false),
+        onConfirm: () => {
+          hideAlert()
+          resolve(true)
+        },
+        onCancel: () => {
+          hideAlert()
+          resolve(false)
+        },
       })
     })
-  }, [showAlert])
+  }, [showAlert, hideAlert])
 
   const showLoading = useCallback((title: string = 'Procesando...') => {
     showAlert({

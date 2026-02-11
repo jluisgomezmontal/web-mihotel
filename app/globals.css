@@ -9,8 +9,8 @@
   --card-foreground: oklch(0.2046 0 0);
   --popover: oklch(0.9911 0 0);
   --popover-foreground: oklch(0.4386 0 0);
-  --primary: oklch(0.8348 0.1302 160.9080);
-  --primary-foreground: oklch(0.2626 0.0147 166.4589);
+  --primary: oklch(0.5486 0.1084 264.0520);
+  --primary-foreground: oklch(0.9851 0.0032 264.0520);
   --secondary: oklch(0.9940 0 0);
   --secondary-foreground: oklch(0.2046 0 0);
   --muted: oklch(0.9461 0 0);
@@ -21,40 +21,40 @@
   --destructive-foreground: oklch(0.9934 0.0032 17.2118);
   --border: oklch(0.9037 0 0);
   --input: oklch(0.9731 0 0);
-  --ring: oklch(0.8348 0.1302 160.9080);
-  --chart-1: oklch(0.8348 0.1302 160.9080);
+  --ring: oklch(0.5486 0.1084 264.0520);
+  --chart-1: oklch(0.5486 0.1084 264.0520);
   --chart-2: oklch(0.6231 0.1880 259.8145);
   --chart-3: oklch(0.6056 0.2189 292.7172);
   --chart-4: oklch(0.7686 0.1647 70.0804);
   --chart-5: oklch(0.6959 0.1491 162.4796);
   --sidebar: oklch(0.9911 0 0);
   --sidebar-foreground: oklch(0.5452 0 0);
-  --sidebar-primary: oklch(0.8348 0.1302 160.9080);
-  --sidebar-primary-foreground: oklch(0.2626 0.0147 166.4589);
+  --sidebar-primary: oklch(0.5486 0.1084 264.0520);
+  --sidebar-primary-foreground: oklch(0.9851 0.0032 264.0520);
   --sidebar-accent: oklch(0.9461 0 0);
   --sidebar-accent-foreground: oklch(0.2435 0 0);
   --sidebar-border: oklch(0.9037 0 0);
-  --sidebar-ring: oklch(0.8348 0.1302 160.9080);
+  --sidebar-ring: oklch(0.5486 0.1084 264.0520);
   
-  /* Dashboard specific colors - Modern & Elegant Palette */
-  --dashboard-success: oklch(0.72 0.18 152);        /* Emerald green - vibrant & fresh */
-  --dashboard-success-light: oklch(0.96 0.04 152);  /* Soft emerald background */
-  --dashboard-warning: oklch(0.78 0.16 75);         /* Warm amber - attention without alarm */
-  --dashboard-warning-light: oklch(0.96 0.04 75);   /* Soft amber background */
-  --dashboard-info: oklch(0.68 0.19 245);           /* Deep blue - trust & professionalism */
-  --dashboard-info-light: oklch(0.96 0.04 245);     /* Soft blue background */
-  --dashboard-danger: oklch(0.62 0.22 27);          /* Coral red - clear but not harsh */
-  --dashboard-danger-light: oklch(0.96 0.04 27);    /* Soft coral background */
+  /* Dashboard specific colors - Professional & Elegant Palette */
+  --dashboard-success: oklch(0.62 0.13 152);        /* Muted emerald green - professional */
+  --dashboard-success-light: oklch(0.96 0.03 152);  /* Soft emerald background */
+  --dashboard-warning: oklch(0.68 0.12 75);         /* Muted amber - subtle attention */
+  --dashboard-warning-light: oklch(0.96 0.03 75);   /* Soft amber background */
+  --dashboard-info: oklch(0.58 0.14 245);           /* Muted blue - trust & calm */
+  --dashboard-info-light: oklch(0.96 0.03 245);     /* Soft blue background */
+  --dashboard-danger: oklch(0.55 0.16 27);          /* Muted coral red - professional */
+  --dashboard-danger-light: oklch(0.96 0.03 27);    /* Soft coral background */
   
-  /* Gradient colors - Premium feel */
-  --gradient-primary-from: oklch(0.72 0.18 165);    /* Teal */
-  --gradient-primary-to: oklch(0.62 0.20 185);      /* Deep cyan */
-  --gradient-success-from: oklch(0.75 0.18 150);    /* Bright emerald */
-  --gradient-success-to: oklch(0.65 0.20 168);      /* Deep teal */
-  --gradient-warning-from: oklch(0.82 0.16 80);     /* Bright amber */
-  --gradient-warning-to: oklch(0.72 0.18 65);       /* Deep gold */
-  --gradient-info-from: oklch(0.70 0.19 250);       /* Bright blue */
-  --gradient-info-to: oklch(0.60 0.21 265);         /* Deep indigo */
+  /* Gradient colors - Sophisticated feel */
+  --gradient-primary-from: oklch(0.58 0.12 260);    /* Muted slate blue */
+  --gradient-primary-to: oklch(0.48 0.14 275);      /* Deep indigo */
+  --gradient-success-from: oklch(0.64 0.13 150);    /* Muted emerald */
+  --gradient-success-to: oklch(0.54 0.14 165);      /* Deep teal */
+  --gradient-warning-from: oklch(0.70 0.12 80);     /* Muted amber */
+  --gradient-warning-to: oklch(0.60 0.13 70);       /* Deep gold */
+  --gradient-info-from: oklch(0.60 0.14 250);       /* Muted blue */
+  --gradient-info-to: oklch(0.50 0.15 265);         /* Deep indigo */
   
   /* Card enhancements - Subtle depth */
   --card-hover: oklch(0.985 0.002 180);             /* Barely tinted white */
@@ -79,29 +79,29 @@
   --border-default: oklch(0.88 0 0);                /* Default border */
   --border-strong: oklch(0.75 0 0);                 /* Strong border */
   
-  /* Room status colors - Modern & Professional */
-  --room-available: oklch(0.72 0.18 152);           /* Emerald - disponible */
-  --room-available-light: oklch(0.96 0.04 152);
-  --room-occupied: oklch(0.62 0.22 27);             /* Coral - ocupada */
-  --room-occupied-light: oklch(0.96 0.04 27);
-  --room-reserved: oklch(0.68 0.19 245);            /* Blue - reservada */
-  --room-reserved-light: oklch(0.96 0.04 245);
-  --room-maintenance: oklch(0.70 0.18 40);          /* Orange - mantenimiento */
-  --room-maintenance-light: oklch(0.96 0.04 40);
-  --room-cleaning: oklch(0.78 0.16 75);             /* Amber - limpieza */
-  --room-cleaning-light: oklch(0.96 0.04 75);
+  /* Room status colors - Professional & Elegant */
+  --room-available: oklch(0.62 0.13 152);           /* Muted emerald - disponible */
+  --room-available-light: oklch(0.96 0.03 152);
+  --room-occupied: oklch(0.55 0.16 27);             /* Muted coral - ocupada */
+  --room-occupied-light: oklch(0.96 0.03 27);
+  --room-reserved: oklch(0.58 0.14 245);            /* Muted blue - reservada */
+  --room-reserved-light: oklch(0.96 0.03 245);
+  --room-maintenance: oklch(0.62 0.13 40);          /* Muted orange - mantenimiento */
+  --room-maintenance-light: oklch(0.96 0.03 40);
+  --room-cleaning: oklch(0.68 0.12 75);             /* Muted amber - limpieza */
+  --room-cleaning-light: oklch(0.96 0.03 75);
   
-  /* Reservation status colors - Professional & Modern */
-  --reservation-pending: oklch(0.78 0.16 75);       /* Amber - pendiente */
-  --reservation-pending-light: oklch(0.96 0.04 75);
-  --reservation-confirmed: oklch(0.72 0.18 152);    /* Emerald - confirmada */
-  --reservation-confirmed-light: oklch(0.96 0.04 152);
-  --reservation-checked-in: oklch(0.68 0.19 245);   /* Blue - checked in */
-  --reservation-checked-in-light: oklch(0.96 0.04 245);
+  /* Reservation status colors - Professional & Elegant */
+  --reservation-pending: oklch(0.68 0.12 75);       /* Muted amber - pendiente */
+  --reservation-pending-light: oklch(0.96 0.03 75);
+  --reservation-confirmed: oklch(0.62 0.13 152);    /* Muted emerald - confirmada */
+  --reservation-confirmed-light: oklch(0.96 0.03 152);
+  --reservation-checked-in: oklch(0.58 0.14 245);   /* Muted blue - checked in */
+  --reservation-checked-in-light: oklch(0.96 0.03 245);
   --reservation-checked-out: oklch(0.50 0 0);       /* Gray - checked out */
   --reservation-checked-out-light: oklch(0.94 0 0);
-  --reservation-cancelled: oklch(0.62 0.22 27);     /* Coral - cancelada */
-  --reservation-cancelled-light: oklch(0.96 0.04 27);
+  --reservation-cancelled: oklch(0.55 0.16 27);     /* Muted coral - cancelada */
+  --reservation-cancelled-light: oklch(0.96 0.03 27);
   
   /* Payment status colors */
   --payment-pending: oklch(0.78 0.16 75);           /* Amber */
@@ -151,9 +151,9 @@
   --user-inactive: oklch(0.60 0.02 0);              /* Gray - Inactive */
   --user-inactive-light: oklch(0.94 0.01 0);
   
-  /* Form states - Modern & Accessible */
-  --form-focus: oklch(0.72 0.18 165);               /* Teal - Focus state */
-  --form-focus-ring: oklch(0.72 0.18 165 / 0.2);    /* Focus ring */
+  /* Form states - Professional & Accessible */
+  --form-focus: oklch(0.58 0.12 264);               /* Slate blue - Focus state */
+  --form-focus-ring: oklch(0.58 0.12 264 / 0.2);    /* Focus ring */
   --form-error: oklch(0.62 0.22 27);                /* Coral - Error state */
   --form-error-light: oklch(0.96 0.04 27);          /* Error background */
   --form-success: oklch(0.72 0.18 152);             /* Emerald - Success state */
@@ -202,8 +202,8 @@
   --card-foreground: oklch(0.9288 0.0126 255.5078);
   --popover: oklch(0.2603 0 0);
   --popover-foreground: oklch(0.7348 0 0);
-  --primary: oklch(0.4365 0.1044 156.7556);
-  --primary-foreground: oklch(0.9213 0.0135 167.1556);
+  --primary: oklch(0.6486 0.1284 264.0520);
+  --primary-foreground: oklch(0.9851 0.0032 264.0520);
   --secondary: oklch(0.2603 0 0);
   --secondary-foreground: oklch(0.9851 0 0);
   --muted: oklch(0.2393 0 0);
@@ -214,40 +214,40 @@
   --destructive-foreground: oklch(0.9368 0.0045 34.3092);
   --border: oklch(0.2809 0 0);
   --input: oklch(0.2603 0 0);
-  --ring: oklch(0.8003 0.1821 151.7110);
-  --chart-1: oklch(0.8003 0.1821 151.7110);
+  --ring: oklch(0.6486 0.1284 264.0520);
+  --chart-1: oklch(0.6486 0.1284 264.0520);
   --chart-2: oklch(0.7137 0.1434 254.6240);
   --chart-3: oklch(0.7090 0.1592 293.5412);
   --chart-4: oklch(0.8369 0.1644 84.4286);
   --chart-5: oklch(0.7845 0.1325 181.9120);
   --sidebar: oklch(0.1822 0 0);
   --sidebar-foreground: oklch(0.6301 0 0);
-  --sidebar-primary: oklch(0.4365 0.1044 156.7556);
-  --sidebar-primary-foreground: oklch(0.9213 0.0135 167.1556);
+  --sidebar-primary: oklch(0.6486 0.1284 264.0520);
+  --sidebar-primary-foreground: oklch(0.9851 0.0032 264.0520);
   --sidebar-accent: oklch(0.3132 0 0);
   --sidebar-accent-foreground: oklch(0.9851 0 0);
   --sidebar-border: oklch(0.2809 0 0);
-  --sidebar-ring: oklch(0.8003 0.1821 151.7110);
+  --sidebar-ring: oklch(0.6486 0.1284 264.0520);
   
-  /* Dashboard specific colors - Dark mode - Modern & Elegant */
-  --dashboard-success: oklch(0.68 0.18 152);        /* Bright emerald for dark bg */
-  --dashboard-success-light: oklch(0.28 0.10 152);  /* Deep emerald background */
-  --dashboard-warning: oklch(0.74 0.16 75);         /* Bright amber for dark bg */
-  --dashboard-warning-light: oklch(0.28 0.10 75);   /* Deep amber background */
-  --dashboard-info: oklch(0.65 0.19 245);           /* Bright blue for dark bg */
-  --dashboard-info-light: oklch(0.28 0.10 245);     /* Deep blue background */
-  --dashboard-danger: oklch(0.60 0.22 27);          /* Bright coral for dark bg */
-  --dashboard-danger-light: oklch(0.28 0.10 27);    /* Deep coral background */
+  /* Dashboard specific colors - Dark mode - Professional & Elegant */
+  --dashboard-success: oklch(0.64 0.14 152);        /* Muted emerald for dark bg */
+  --dashboard-success-light: oklch(0.28 0.08 152);  /* Deep emerald background */
+  --dashboard-warning: oklch(0.68 0.13 75);         /* Muted amber for dark bg */
+  --dashboard-warning-light: oklch(0.28 0.08 75);   /* Deep amber background */
+  --dashboard-info: oklch(0.62 0.15 245);           /* Muted blue for dark bg */
+  --dashboard-info-light: oklch(0.28 0.08 245);     /* Deep blue background */
+  --dashboard-danger: oklch(0.58 0.17 27);          /* Muted coral for dark bg */
+  --dashboard-danger-light: oklch(0.28 0.08 27);    /* Deep coral background */
   
-  /* Gradient colors - Dark mode - Premium feel */
-  --gradient-primary-from: oklch(0.55 0.18 165);    /* Medium teal */
-  --gradient-primary-to: oklch(0.45 0.20 185);      /* Deep cyan */
-  --gradient-success-from: oklch(0.58 0.18 150);    /* Medium emerald */
-  --gradient-success-to: oklch(0.48 0.20 168);      /* Deep teal */
-  --gradient-warning-from: oklch(0.62 0.16 80);     /* Medium amber */
-  --gradient-warning-to: oklch(0.52 0.18 65);       /* Deep gold */
-  --gradient-info-from: oklch(0.58 0.19 250);       /* Medium blue */
-  --gradient-info-to: oklch(0.48 0.21 265);         /* Deep indigo */
+  /* Gradient colors - Dark mode - Sophisticated feel */
+  --gradient-primary-from: oklch(0.62 0.13 260);    /* Muted slate blue */
+  --gradient-primary-to: oklch(0.52 0.14 275);      /* Deep indigo */
+  --gradient-success-from: oklch(0.60 0.13 150);    /* Muted emerald */
+  --gradient-success-to: oklch(0.50 0.14 165);      /* Deep teal */
+  --gradient-warning-from: oklch(0.64 0.12 80);     /* Muted amber */
+  --gradient-warning-to: oklch(0.54 0.13 70);       /* Deep gold */
+  --gradient-info-from: oklch(0.60 0.14 250);       /* Muted blue */
+  --gradient-info-to: oklch(0.50 0.15 265);         /* Deep indigo */
   
   /* Card enhancements - Dark mode - Elevated depth */
   --card-hover: oklch(0.24 0.008 180);              /* Slightly lighter dark */
@@ -345,8 +345,8 @@
   --user-inactive-light: oklch(0.25 0.01 0);
   
   /* Form states - Dark mode */
-  --form-focus: oklch(0.68 0.18 165);
-  --form-focus-ring: oklch(0.68 0.18 165 / 0.2);
+  --form-focus: oklch(0.64 0.13 264);
+  --form-focus-ring: oklch(0.64 0.13 264 / 0.2);
   --form-error: oklch(0.60 0.22 27);
   --form-error-light: oklch(0.28 0.10 27);
   --form-success: oklch(0.68 0.18 152);

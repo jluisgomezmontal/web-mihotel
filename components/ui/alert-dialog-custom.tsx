@@ -80,13 +80,19 @@ export function AlertDialogCustom({
   const colors = colorMap[type]
 
   const handleConfirm = () => {
-    onConfirm?.()
-    onOpenChange(false)
+    if (onConfirm) {
+      onConfirm()
+    } else {
+      onOpenChange(false)
+    }
   }
 
   const handleCancel = () => {
-    onCancel?.()
-    onOpenChange(false)
+    if (onCancel) {
+      onCancel()
+    } else {
+      onOpenChange(false)
+    }
   }
 
   return (

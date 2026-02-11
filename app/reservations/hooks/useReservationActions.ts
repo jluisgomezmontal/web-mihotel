@@ -6,10 +6,20 @@
 import { useCallback } from 'react'
 import { AuthService } from '@/lib/auth'
 import { API_BASE_URL } from '@/lib/api-config'
-import { useAlert } from '@/lib/use-alert'
 
-export function useReservationActions(refreshReservations: () => void) {
-  const { confirmDelete, showError, showLoading, close, showSuccess } = useAlert()
+interface AlertFunctions {
+  confirmDelete: (config: { title: string; text: string; confirmButtonText?: string }) => Promise<boolean>
+  showError: (title: string, description?: string) => Promise<void>
+  showLoading: (title?: string) => void
+  close: () => void
+  showSuccess: (title: string, description?: string) => Promise<void>
+}
+
+export function useReservationActions(
+  refreshReservations: () => void,
+  alertFunctions: AlertFunctions
+) {
+  const { confirmDelete, showError, showLoading, close, showSuccess } = alertFunctions
 
   const handleConfirm = useCallback(async (reservationId: string) => {
     const confirmed = await confirmDelete({
@@ -37,13 +47,13 @@ export function useReservationActions(refreshReservations: () => void) {
         }
       })
 
+      close()
+
       if (response.ok) {
-        close()
         await showSuccess('¡Reserva confirmada!', 'La reserva ha sido confirmada exitosamente')
         refreshReservations()
       } else {
         const data = await response.json()
-        close()
         await showError('Error al confirmar', data.message || 'No se pudo confirmar la reserva')
       }
     } catch (err) {

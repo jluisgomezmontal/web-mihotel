@@ -46,10 +46,21 @@ export function ReservationCard({
   onCancel,
   onRegisterPayment,
 }: ReservationCardProps) {
-  const handleConfirm = () => onConfirm(reservation.id)
-  const handleCheckIn = () => onCheckIn(reservation.id)
-  const handleCheckOut = () => onCheckOut(reservation.id)
-  const handleCancel = () => onCancel(reservation.id)
+  const handleConfirm = async () => {
+    await onConfirm(reservation.id)
+  }
+  const handleCheckIn = async () => {
+    await onCheckIn(reservation.id)
+  }
+  const handleCheckOut = async () => {
+    await onCheckOut(reservation.id)
+  }
+  const handleCancel = async () => {
+    await onCancel(reservation.id)
+  }
+  const handleDelete = async () => {
+    await onDelete(reservation.id)
+  }
   
   const hasBalance = reservation.paymentStatus !== 'paid'
   const balanceAmount = reservation.pricing.totalPrice - (reservation.pricing.totalPrice * (reservation.paymentStatus === 'partial' ? 0.5 : reservation.paymentStatus === 'paid' ? 1 : 0))
@@ -115,24 +126,24 @@ export function ReservationCard({
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuLabel>Acciones</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onEdit(reservation)}>
+              <DropdownMenuItem onSelect={() => onEdit(reservation)}>
                 <Edit className="mr-2 h-4 w-4" />
                 Editar Reserva
               </DropdownMenuItem>
               {reservation.status === 'pending' && (
-                <DropdownMenuItem onClick={handleConfirm}>
+                <DropdownMenuItem onSelect={handleConfirm}>
                   <CheckCircle className="mr-2 h-4 w-4" />
                   Confirmar Reserva
                 </DropdownMenuItem>
               )}
               {['pending', 'confirmed'].includes(reservation.status) && (
-                <DropdownMenuItem onClick={handleCancel} className="text-red-300">
+                <DropdownMenuItem onSelect={handleCancel} className="text-red-300">
                   <XCircle className="mr-2 h-4 w-4" />
                   Cancelar Reserva
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onDelete(reservation.id)} className="text-red-500">
+              <DropdownMenuItem onSelect={handleDelete} className="text-red-500">
                 <Trash2 className="mr-2 h-4 w-4" />
                 Eliminar
               </DropdownMenuItem>

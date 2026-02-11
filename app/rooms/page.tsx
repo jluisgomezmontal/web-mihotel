@@ -16,6 +16,7 @@ import { RoomFilters } from "./components/RoomFilters"
 import { EmptyState } from "./components/EmptyState"
 import { useRoomData } from "./hooks/useRoomData"
 import { useRoomActions } from "./hooks/useRoomActions"
+import { useRoomStatusActions } from "./hooks/useRoomStatusActions"
 import type { Room } from "./types"
 
 export default function RoomsPage() {
@@ -24,16 +25,23 @@ export default function RoomsPage() {
   const [typeFilter, setTypeFilter] = React.useState<string>("all")
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
   const [editingRoom, setEditingRoom] = React.useState<Room | undefined>(undefined)
-  const { alertState, hideAlert } = useAlert()
+  const { alertState, hideAlert, showError, showLoading, showSuccess } = useAlert()
   const { userData, tenantData } = useDashboard()
 
   const { rooms, properties, isLoading, loadRooms } = useRoomData(statusFilter, typeFilter, searchTerm)
   const roomActions = useRoomActions(loadRooms)
+  const roomStatusActions = useRoomStatusActions(loadRooms, {
+    showError,
+    showLoading,
+    close: hideAlert,
+    showSuccess,
+  })
 
   const stats = React.useMemo(() => ({
     total: rooms.length,
     available: rooms.filter(r => r.status === 'available').length,
     occupied: rooms.filter(r => r.status === 'occupied').length,
+    cleaning: rooms.filter(r => r.status === 'cleaning').length,
     maintenance: rooms.filter(r => r.status === 'maintenance').length,
   }), [rooms])
 
@@ -116,6 +124,7 @@ export default function RoomsPage() {
                 room={room}
                 onEdit={handleEditRoom}
                 onDelete={roomActions.handleDelete}
+                onStatusChange={roomStatusActions.handleStatusChange}
               />
             ))}
           </div>

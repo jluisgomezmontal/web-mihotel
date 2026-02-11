@@ -47,7 +47,7 @@ export default function ReservationsPage() {
     isLoading 
   } = useDashboard()
   
-  const { alertState, hideAlert } = useAlert()
+  const { alertState, hideAlert, confirmDelete, showError, showLoading, showSuccess } = useAlert()
   
   // Local state
   const [searchTerm, setSearchTerm] = React.useState("")
@@ -58,7 +58,13 @@ export default function ReservationsPage() {
   const [selectedReservationForPayment, setSelectedReservationForPayment] = React.useState<string | undefined>(undefined)
 
   // Custom hooks
-  const reservationActions = useReservationActions(refreshReservations)
+  const reservationActions = useReservationActions(refreshReservations, {
+    confirmDelete,
+    showError,
+    showLoading,
+    close: hideAlert,
+    showSuccess,
+  })
   const { filteredReservations, statusCounts } = useReservationFilters(
     reservations,
     searchTerm,

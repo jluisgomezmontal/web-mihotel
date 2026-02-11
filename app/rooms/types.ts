@@ -30,11 +30,13 @@ export interface RoomCardProps {
   room: Room
   onEdit: (room: Room) => void
   onDelete: (room: Room) => void
+  onStatusChange?: (roomId: string, newStatus: string) => void
 }
 
 export interface RoomStats {
   total: number
   available: number
   occupied: number
+  cleaning: number
   maintenance: number
 }

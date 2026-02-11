@@ -1,5 +1,5 @@
 import { useRouter } from "next/navigation"
-import { Bed, Building2, Home, Users, DollarSign, Edit, Trash2, ArrowRight } from "lucide-react"
+import { Bed, Building2, Home, Users, DollarSign, Edit, Trash2, ArrowRight, CheckCircle2, Loader2, Wrench } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 import { getStatusConfig, getTypeLabel } from "../constants"
 import type { RoomCardProps } from "../types"
 
-export function RoomCard({ room, onEdit, onDelete }: RoomCardProps) {
+export function RoomCard({ room, onEdit, onDelete, onStatusChange }: RoomCardProps) {
   const router = useRouter()
   const statusConfig = getStatusConfig(room.status)
   const StatusIcon = statusConfig.icon
@@ -90,6 +90,91 @@ export function RoomCard({ room, onEdit, onDelete }: RoomCardProps) {
             </span>
           </div>
         </div>
+
+        {/* Quick Status Change for Cleaning Rooms */}
+        {room.status === 'cleaning' && (
+          <div className="p-3 bg-gradient-to-r from-[var(--room-cleaning-light)] to-transparent border border-[var(--room-cleaning)]/30 rounded-xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-[var(--room-cleaning)]/10 rounded-lg">
+                  <Loader2 className="h-4 w-4 text-[var(--room-cleaning)] animate-spin" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-[var(--text-primary)]">Habitación en limpieza</p>
+                  <p className="text-xs text-[var(--text-tertiary)]">Marca como disponible cuando esté lista</p>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onStatusChange?.(room._id, 'available')
+                }}
+                className="bg-[var(--room-available)] hover:bg-[var(--room-available)]/90 text-white font-semibold shadow-md hover:shadow-lg transition-all group/btn"
+              >
+                <CheckCircle2 className="h-4 w-4 mr-1.5 group-hover/btn:scale-110 transition-transform" />
+                Marcar Disponible
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Status Change for Maintenance Rooms */}
+        {room.status === 'maintenance' && (
+          <div className="p-3 bg-gradient-to-r from-[var(--room-maintenance-light)] to-transparent border border-[var(--room-maintenance)]/30 rounded-xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-[var(--room-maintenance)]/10 rounded-lg">
+                  <Wrench className="h-4 w-4 text-[var(--room-maintenance)]" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-[var(--text-primary)]">En mantenimiento</p>
+                  <p className="text-xs text-[var(--text-tertiary)]">Marca como disponible cuando termine</p>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onStatusChange?.(room._id, 'available')
+                }}
+                className="bg-[var(--room-available)] hover:bg-[var(--room-available)]/90 text-white font-semibold shadow-md hover:shadow-lg transition-all group/btn"
+              >
+                <CheckCircle2 className="h-4 w-4 mr-1.5 group-hover/btn:scale-110 transition-transform" />
+                Marcar Disponible
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Actions for Available Rooms */}
+        {room.status === 'available' && (
+          <div className="p-3 bg-gradient-to-r from-[var(--room-available-light)] to-transparent border border-[var(--room-available)]/30 rounded-xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-[var(--room-available)]/10 rounded-lg">
+                  <CheckCircle2 className="h-4 w-4 text-[var(--room-available)]" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-[var(--text-primary)]">Habitación disponible</p>
+                  <p className="text-xs text-[var(--text-tertiary)]">Lista para reservar o mantenimiento</p>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onStatusChange?.(room._id, 'maintenance')
+                }}
+                className="border-[var(--room-maintenance)] text-[var(--room-maintenance)] hover:bg-[var(--room-maintenance-light)] hover:text-[var(--room-maintenance)] font-semibold transition-all group/btn"
+              >
+                <Wrench className="h-4 w-4 mr-1.5 group-hover/btn:scale-110 transition-transform" />
+                Enviar a Mantenimiento
+              </Button>
+            </div>
+          </div>
+        )}
 
         <div className="flex gap-2 pt-2">
           <Button 
