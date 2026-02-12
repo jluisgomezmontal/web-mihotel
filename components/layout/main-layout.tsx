@@ -21,12 +21,27 @@ interface MainLayoutProps {
 }
 
 export function MainLayout({ children, user, tenant }: MainLayoutProps) {
-  const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = React.useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sidebarCollapsed')
+      return saved === 'true'
+    }
+    return false
+  })
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
 
   const toggleSidebar = () => {
-    setSidebarCollapsed(!sidebarCollapsed)
+    setSidebarCollapsed(prev => {
+      const newValue = !prev
+      localStorage.setItem('sidebarCollapsed', String(newValue))
+      return newValue
+    })
   }
+
+  // Close mobile menu on route change
+  React.useEffect(() => {
+    setIsMobileMenuOpen(false)
+  }, [children])
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
@@ -47,6 +62,7 @@ export function MainLayout({ children, user, tenant }: MainLayoutProps) {
             user={user}
             tenant={tenant}
             onMobileMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            onSidebarToggle={toggleSidebar}
           />
           
           <main className="p-4 lg:p-6 pb-20 lg:pb-6">

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Bell, ChevronDown, Moon, Sun, User, LogOut, Settings, Building2, Menu, Sparkles } from "lucide-react"
+import { Bell, ChevronDown, Moon, Sun, User, LogOut, Settings, Building2, Menu, Sparkles, PanelLeftClose, PanelLeft } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -33,14 +33,15 @@ interface HeaderProps {
   }
   notifications?: number
   onMobileMenuToggle?: () => void
+  onSidebarToggle?: () => void
 }
 
 export function Header({ 
   isCollapsed, 
   user = { name: "Usuario Demo", email: "demo@mihotel.com", role: "admin" },
-  tenant = { name: "Hotel Paradise", type: "hotel" },
   notifications = 3,
-  onMobileMenuToggle
+  onMobileMenuToggle,
+  onSidebarToggle
 }: HeaderProps) {
   const router = useRouter()
   const { theme, setTheme } = useTheme()
@@ -98,8 +99,9 @@ export function Header({
   return (
     <header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
       <div className="flex h-16 items-center justify-between px-4 lg:px-6 w-full">
-        {/* Left side - Mobile Menu Button */}
-        <div className="flex items-center gap-4">
+        {/* Left side - Menu Buttons */}
+        <div className="flex items-center gap-2">
+          {/* Mobile Menu Button */}
           <Button
             variant="ghost"
             size="icon"
@@ -107,7 +109,23 @@ export function Header({
             onClick={onMobileMenuToggle}
           >
             <Menu className="h-5 w-5" />
-            <span className="sr-only">Toggle menu</span>
+            <span className="sr-only">Toggle mobile menu</span>
+          </Button>
+          
+          {/* Desktop Sidebar Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hidden lg:flex h-9 w-9 hover:scale-110 transition-all duration-300"
+            onClick={onSidebarToggle}
+            title={isCollapsed ? "Abrir sidebar" : "Cerrar sidebar"}
+          >
+            {isCollapsed ? (
+              <PanelLeft className="h-5 w-5" />
+            ) : (
+              <PanelLeftClose className="h-5 w-5" />
+            )}
+            <span className="sr-only">{isCollapsed ? "Abrir" : "Cerrar"} sidebar</span>
           </Button>
         </div>
 

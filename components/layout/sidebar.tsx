@@ -177,16 +177,6 @@ function SidebarContent({ isCollapsed, onToggle, pathname, isMobile }: SidebarCo
       setIsLoggingOut(false)
     }
   }
-
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2)
-  }
-
   const getRoleBadge = (role: string) => {
     switch (role) {
       case 'admin':
